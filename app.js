@@ -3,6 +3,8 @@ let player;
 let playerReady = false;
 let positionSaveInterval;
 let sleepTimerTimeout;
+let sleepTimerInterval;
+let sleepTimerEndTime;
 
 // Load YouTube IFrame API
 const tag = document.createElement('script');
@@ -24,6 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const helpModal = document.getElementById('helpModal');
     const closeModal = document.querySelector('.close');
     const currentYearSpan = document.getElementById('currentYear');
+    const sleepTimerOverlay = document.getElementById('sleepTimerOverlay');
+    const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
 
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
@@ -64,6 +68,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get saved position from localStorage
     function getSavedPosition(videoId) {
         return parseFloat(localStorage.getItem(`booktube_position_${videoId}`) || '0');
+    }
+
+    // Format time for display
+    function formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+    }
+
+    // Update sleep timer display
+    function updateSleepTimerDisplay() {
+        if (!sleepTimerEndTime) {
+            sleepTimerOverlay.classList.remove('active');
+            return;
+        }
+
+        const now = Date.now();
+        const remainingMs = sleepTimerEndTime - now;
+
+        if (remainingMs <= 0) {
+            sleepTimerOverlay.classList.remove('active');
+            clearInterval(sleepTimerInterval);
+            return;
+        }
+
+        const remainingSeconds = Math.ceil(remainingMs / 1000);
+        sleepTimerDisplay.textContent = formatTime(remainingSeconds);
+
+        // Add warning class when less than 1 minute remaining
+        if (remainingSeconds <= 60) {
+            sleepTimerOverlay.classList.add('warning');
+        } else {
+            sleepTimerOverlay.classList.remove('warning');
+        }
     }
 
     // Switch to player screen
@@ -165,10 +209,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set sleep timer
         if (params.sleepTimer !== '0') {
             const minutes = parseInt(params.sleepTimer);
+            sleepTimerEndTime = Date.now() + (minutes * 60 * 1000);
+
+            // Show sleep timer overlay
+            sleepTimerOverlay.classList.add('active');
+            updateSleepTimerDisplay();
+
+            // Update display every second
+            sleepTimerInterval = setInterval(updateSleepTimerDisplay, 1000);
+
+            // Set timeout to pause video
             sleepTimerTimeout = setTimeout(() => {
                 if (player && player.pauseVideo) {
                     player.pauseVideo();
                 }
+                sleepTimerOverlay.classList.remove('active');
+                clearInterval(sleepTimerInterval);
             }, minutes * 60 * 1000);
         }
 
@@ -223,6 +279,14 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(sleepTimerTimeout);
             sleepTimerTimeout = null;
         }
+        if (sleepTimerInterval) {
+            clearInterval(sleepTimerInterval);
+            sleepTimerInterval = null;
+        }
+
+        // Clear sleep timer
+        sleepTimerEndTime = null;
+        sleepTimerOverlay.classList.remove('active');
 
         // Destroy player
         if (player && player.destroy) {
