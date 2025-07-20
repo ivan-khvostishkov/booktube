@@ -130,8 +130,8 @@ Example setup for language learning:
 
 Sample YouTube videos for German language from the [German Hands-Free Trainer](https://github.com/ivan-khvostishkov/german-a1-trainer) project:
 
-* German A1 (Start Deutsch 1): http://booktube.nosocial.net/?v=tSCrnPUt-pU&sleep=20&loop=true&pos=random&edit=true
-* German A2: http://booktube.nosocial.net/?v=esvhhEGLTNA&sleep=20&loop=true&pos=random&edit=true
+* German A1 (Start Deutsch 1): https://booktube.nosocial.net/?v=tSCrnPUt-pU&sleep=20&loop=true&pos=random&edit=true
+* German A2: https://booktube.nosocial.net/?v=esvhhEGLTNA&sleep=20&loop=true&pos=random&edit=true
 
 ## Troubleshooting
 
