@@ -80,8 +80,24 @@ function onYouTubeIframeAPIReady() {
     }
 }
 
+// Switch to player screen
+function showPlayerScreen() {
+    mainScreen.classList.remove('active');
+    playerScreen.classList.add('active');
+}
+
+// Switch to main screen
+function showMainScreen() {
+    playerScreen.classList.remove('active');
+    mainScreen.classList.add('active');
+}
+
 // Create YouTube player
-function createPlayer(videoId, startSeconds) {
+function createPlayer(videoId, startSeconds, params) {
+    // Clear any existing player
+    const playerDiv = document.getElementById('youtubePlayer');
+    playerDiv.innerHTML = '';
+
     player = new YT.Player('youtubePlayer', {
         width: '100%',
         height: '100%',
@@ -90,21 +106,36 @@ function createPlayer(videoId, startSeconds) {
             autoplay: 1,
             start: Math.floor(startSeconds),
             modestbranding: 1,
-            rel: 0
+            rel: 0,
+            fs: 1
         },
         events: {
-            onReady: onPlayerReady,
+            onReady: function(event) {
+                onPlayerReady(event, params);
+            },
             onStateChange: onPlayerStateChange
         }
     });
 }
 
 // Player ready handler
-function onPlayerReady(event) {
+function onPlayerReady(event, params) {
     event.target.playVideo();
 
+    // If random position, seek to random time
+    if (params.position === 'random') {
+        setTimeout(() => {
+            if (player && player.getDuration) {
+                const duration = player.getDuration();
+                if (duration > 0) {
+                    const randomTime = Math.random() * duration;
+                    player.seekTo(randomTime);
+                }
+            }
+        }, 1000);
+    }
+
     // Start position saving if not random
-    const params = parseQueryParams();
     if (params.position !== 'random') {
         positionSaveInterval = setInterval(() => {
             if (player && player.getCurrentTime) {
@@ -128,9 +159,10 @@ function onPlayerStateChange(event) {
 
 // Start player
 function startPlayer(params) {
-    mainScreen.classList.remove('active');
-    playerScreen.classList.add('active');
+    // First show the player screen
+    showPlayerScreen();
 
+    // Update URL
     updateURL(params);
 
     // Set sleep timer
@@ -147,35 +179,27 @@ function startPlayer(params) {
     let startSeconds = 0;
     if (params.position === 'saved') {
         startSeconds = getSavedPosition(params.videoId);
-    } else if (params.position === 'random') {
-        // We'll set a random position after the video loads
-        startSeconds = 0;
     }
 
-    // Create player
-    if (playerReady) {
-        createPlayer(params.videoId, startSeconds);
-
-        // If random position, seek to random time after video loads
-        if (params.position === 'random') {
-            setTimeout(() => {
-                if (player && player.getDuration) {
-                    const duration = player.getDuration();
-                    if (duration > 0) {
-                        const randomTime = Math.random() * duration;
-                        player.seekTo(randomTime);
-                    }
-                }
-            }, 3000); // Wait for video to load
+    // Create player after screen transition
+    setTimeout(() => {
+        if (playerReady) {
+            createPlayer(params.videoId, startSeconds, params);
         }
-    }
+    }, 100);
 }
 
 // Form submit handler
 playForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const videoId = extractVideoId(videoInput.value);
+    const videoId = extractVideoId(videoInput.value.trim());
+
+    if (!videoId) {
+        alert('Please enter a valid YouTube video ID or URL');
+        return;
+    }
+
     const params = {
         videoId: videoId,
         sleepTimer: sleepTimerSelect.value,
@@ -191,19 +215,24 @@ backToMain.addEventListener('click', () => {
     // Clear intervals and timeouts
     if (positionSaveInterval) {
         clearInterval(positionSaveInterval);
+        positionSaveInterval = null;
     }
     if (sleepTimerTimeout) {
         clearTimeout(sleepTimerTimeout);
+        sleepTimerTimeout = null;
     }
 
     // Destroy player
     if (player && player.destroy) {
         player.destroy();
+        player = null;
     }
 
-    // Reset UI
-    playerScreen.classList.remove('active');
-    mainScreen.classList.add('active');
+    // Clear the player div
+    document.getElementById('youtubePlayer').innerHTML = '';
+
+    // Switch screens
+    showMainScreen();
 
     // Clear URL params
     window.history.pushState({}, '', window.location.pathname);
@@ -221,5 +250,15 @@ closeModal.addEventListener('click', () => {
 window.addEventListener('click', (e) => {
     if (e.target === helpModal) {
         helpModal.style.display = 'none';
+    }
+});
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', () => {
+    const params = parseQueryParams();
+    if (params.videoId) {
+        startPlayer(params);
+    } else {
+        showMainScreen();
     }
 });
