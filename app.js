@@ -110,6 +110,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Get random start time for video
+    function getRandomStartTime(videoId, callback) {
+        // Create a temporary player to get duration
+        const tempDiv = document.createElement('div');
+        tempDiv.style.display = 'none';
+        document.body.appendChild(tempDiv);
+
+        const tempPlayer = new YT.Player(tempDiv, {
+            videoId: videoId,
+            events: {
+                onReady: function(event) {
+                    const duration = event.target.getDuration();
+                    const randomTime = Math.floor(Math.random() * duration * 0.9); // Use 90% to avoid very end
+                    tempPlayer.destroy();
+                    document.body.removeChild(tempDiv);
+                    callback(randomTime);
+                }
+            }
+        });
+    }
+
     // Switch to player screen
     window.showPlayerScreen = function() {
         console.log('Switching to player screen');
@@ -130,23 +151,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Create YouTube player
     window.createPlayer = function(videoId, startSeconds, params) {
-        console.log('Creating player for video:', videoId);
+        console.log('Creating player for video:', videoId, 'starting at', startSeconds);
 
         // Clear any existing player
         const playerDiv = document.getElementById('youtubePlayer');
         playerDiv.innerHTML = '';
 
+        const playerVars = {
+            autoplay: 1,
+            start: Math.floor(startSeconds),
+            modestbranding: 1,
+            rel: 0,
+            fs: 1
+        };
+
         player = new YT.Player('youtubePlayer', {
             width: '100%',
             height: '100%',
             videoId: videoId,
-            playerVars: {
-                autoplay: 1,
-                start: Math.floor(startSeconds),
-                modestbranding: 1,
-                rel: 0,
-                fs: 1
-            },
+            playerVars: playerVars,
             events: {
                 onReady: function(event) {
                     window.onPlayerReady(event, params);
@@ -160,19 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.onPlayerReady = function(event, params) {
         console.log('Player ready');
         event.target.playVideo();
-
-        // If random position, seek to random time
-        if (params.position === 'random') {
-            setTimeout(() => {
-                if (player && player.getDuration) {
-                    const duration = player.getDuration();
-                    if (duration > 0) {
-                        const randomTime = Math.random() * duration;
-                        player.seekTo(randomTime);
-                    }
-                }
-            }, 1000);
-        }
 
         // Start position saving if not random
         if (params.position !== 'random') {
@@ -237,7 +247,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create player after screen transition
         setTimeout(() => {
             if (playerReady) {
-                window.createPlayer(params.videoId, startSeconds, params);
+                if (params.position === 'random') {
+                    // For random position, get duration first then create player
+                    getRandomStartTime(params.videoId, (randomTime) => {
+                        window.createPlayer(params.videoId, randomTime, params);
+                    });
+                } else {
+                    window.createPlayer(params.videoId, startSeconds, params);
+                }
             } else {
                 console.error('YouTube API not ready yet');
             }

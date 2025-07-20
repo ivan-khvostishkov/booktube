@@ -222,6 +222,13 @@ input[type="checkbox"] {
     color: #ff6b6b;
 }
 
+#sleepTimerDisplay {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
 .sleep-timer-overlay.warning {
     background: rgba(255, 107, 107, 0.3);
     animation: pulse 1s infinite;
@@ -323,5 +330,9 @@ input[type="checkbox"] {
         right: 15px;
         font-size: 1rem;
         padding: 10px 15px;
+    }
+
+    #sleepTimerDisplay {
+        font-size: 1.1rem;
     }
 }
