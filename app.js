@@ -46,17 +46,25 @@ document.addEventListener('DOMContentLoaded', function() {
             videoId: params.get('v'),
             sleepTimer: params.get('sleep') || '0',
             loop: params.get('loop') === 'true',
-            position: params.get('pos') || 'beginning'
+            position: params.get('pos') || 'beginning',
+            edit: params.get('edit') === 'true'
         };
     }
 
     // Update URL with parameters
-    function updateURL(params) {
+    function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
         url.searchParams.set('v', params.videoId);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
+
+        if (includeEdit) {
+            url.searchParams.set('edit', 'true');
+        } else {
+            url.searchParams.delete('edit');
+        }
+
         window.history.pushState({}, '', url);
     }
 
@@ -149,6 +157,16 @@ document.addEventListener('DOMContentLoaded', function() {
         mainScreen.classList.add('active');
     }
 
+    // Load form values from params
+    function loadFormFromParams(params) {
+        if (params.videoId) {
+            videoInput.value = params.videoId;
+            sleepTimerSelect.value = params.sleepTimer;
+            loopCheckbox.checked = params.loop;
+            positionSelect.value = params.position;
+        }
+    }
+
     // Create YouTube player
     window.createPlayer = function(videoId, startSeconds, params) {
         console.log('Creating player for video:', videoId, 'starting at', startSeconds);
@@ -213,8 +231,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // First show the player screen
         window.showPlayerScreen();
 
-        // Update URL
-        updateURL(params);
+        // Update URL (remove edit mode when playing)
+        updateURL(params, false);
 
         // Set sleep timer
         if (params.sleepTimer !== '0') {
@@ -283,9 +301,9 @@ document.addEventListener('DOMContentLoaded', function() {
         window.startPlayer(params);
     });
 
-    // Back to main handler
+    // Back to main handler (edit mode)
     backToMain.addEventListener('click', () => {
-        console.log('Back to main clicked');
+        console.log('Back to main clicked - entering edit mode');
 
         // Clear intervals and timeouts
         if (positionSaveInterval) {
@@ -317,8 +335,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Switch screens
         window.showMainScreen();
 
-        // Clear URL params
-        window.history.pushState({}, '', window.location.pathname);
+        // Update URL to include edit mode
+        const currentParams = parseQueryParams();
+        updateURL(currentParams, true);
     });
 
     // Help modal handlers
@@ -344,11 +363,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if we should auto-start based on URL params
         const params = parseQueryParams();
         if (params.videoId) {
-            videoInput.value = params.videoId;
-            sleepTimerSelect.value = params.sleepTimer;
-            loopCheckbox.checked = params.loop;
-            positionSelect.value = params.position;
-            window.startPlayer(params);
+            // Load form values
+            loadFormFromParams(params);
+
+            // Only auto-play if not in edit mode
+            if (!params.edit) {
+                window.startPlayer(params);
+            }
         }
     }
 
@@ -356,9 +377,20 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('popstate', () => {
         const params = parseQueryParams();
         if (params.videoId) {
-            window.startPlayer(params);
+            loadFormFromParams(params);
+            if (!params.edit) {
+                window.startPlayer(params);
+            } else {
+                window.showMainScreen();
+            }
         } else {
             window.showMainScreen();
         }
     });
+
+    // Initial load - check if we're in edit mode
+    const initialParams = parseQueryParams();
+    if (initialParams.videoId && initialParams.edit) {
+        loadFormFromParams(initialParams);
+    }
 });
