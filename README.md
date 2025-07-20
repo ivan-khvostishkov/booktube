@@ -17,22 +17,20 @@ https://booktube.nosocial.net
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
-## Installation
-
-1. Download all project files to a local directory:
-    - `index.html`
-    - `app.js`
-    - `styles.css`
-
-2. Open `index.html` in a modern web browser
-
-That's it! No server setup or build process required.
-
 ## Usage
+
+Some sample audiobooks to start with:
+
+* [The Bhagavad Gita, The Lord's Song](https://booktube.nosocial.net/?v=IIEJNUO1BoQ&sleep=15&loop=false&pos=saved)
+* [Siddhartha By Hermann Hesse](https://booktube.nosocial.net/?v=vS4ble0Uznk&sleep=30&loop=false&pos=saved)
+* [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=30&loop=false&pos=saved)
 
 ### Basic Playback
 
+0. Navigate to https://booktube.nosocial.net/
+
 1. Enter a YouTube video ID or full URL in the input field
+
 2. Select your desired settings:
     - **Sleep Timer**: Choose when to automatically pause playback
     - **Loop**: Enable to replay the video indefinitely
