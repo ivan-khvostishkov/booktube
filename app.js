@@ -338,6 +338,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 startSeconds = getSavedPosition(params.videoId);
             }
+        } else if (params.position === 'random' && currentPlaylist.length > 1) {
+            currentVideoIndex = Math.floor(Math.random() * currentPlaylist.length);
+            params.videoId = currentPlaylist[currentVideoIndex];
         }
 
         // Create player after screen transition
