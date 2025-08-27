@@ -75,39 +75,67 @@ document.addEventListener('DOMContentLoaded', function() {
         return results;
     }
     
-    // Fetch video IDs from YouTube playlist using public RSS feed
+    // Multiple proxy services for fallback
+    const proxyServices = [
+        'https://api.allorigins.win/raw?url=',
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest='
+    ];
+
+    // Show/hide loading indicator
+    function showLoading() {
+        document.getElementById('loadingIndicator').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingIndicator').classList.remove('active');
+    }
+
+    // Fetch video IDs from YouTube playlist using public RSS feed with multiple proxies
     async function fetchPlaylistVideos(playlistId) {
         console.log('Fetching playlist videos for ID:', playlistId);
-        const proxyUrl = 'https://api.allorigins.win/raw?url=';
         const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
         console.log('RSS URL:', rssUrl);
         
-        try {
-            const response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
-            const xmlText = await response.text();
-            console.log('RSS response length:', xmlText.length);
-            console.log('RSS response preview:', xmlText.substring(0, 500));
+        showLoading();
+        
+        for (let i = 0; i < proxyServices.length; i++) {
+            const proxyUrl = proxyServices[i];
+            console.log(`Trying proxy ${i + 1}/${proxyServices.length}:`, proxyUrl);
             
-            // Parse XML to extract video IDs
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-            const entries = xmlDoc.getElementsByTagName('entry');
-            console.log('Found entries:', entries.length);
-            
-            const videoIds = [];
-            for (let i = 0; i < entries.length; i++) {
-                const videoId = entries[i].getElementsByTagName('yt:videoId')[0]?.textContent;
-                console.log(`Entry ${i}: videoId =`, videoId);
-                if (videoId) {
-                    videoIds.push(videoId);
+            try {
+                const response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const xmlText = await response.text();
+                console.log('RSS response length:', xmlText.length);
+                console.log('RSS response preview:', xmlText.substring(0, 500));
+                
+                // Parse XML to extract video IDs
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                const entries = xmlDoc.getElementsByTagName('entry');
+                console.log('Found entries:', entries.length);
+                
+                const videoIds = [];
+                for (let j = 0; j < entries.length; j++) {
+                    const videoId = entries[j].getElementsByTagName('yt:videoId')[0]?.textContent;
+                    console.log(`Entry ${j}: videoId =`, videoId);
+                    if (videoId) {
+                        videoIds.push(videoId);
+                    }
+                }
+                
+                console.log('Extracted video IDs from playlist:', videoIds);
+                hideLoading();
+                return videoIds;
+            } catch (error) {
+                console.error(`Proxy ${i + 1} failed:`, error);
+                if (i === proxyServices.length - 1) {
+                    hideLoading();
+                    throw new Error('All proxy services failed');
                 }
             }
-            
-            console.log('Extracted video IDs from playlist:', videoIds);
-            return videoIds;
-        } catch (error) {
-            console.error('Error fetching playlist:', error);
-            throw error;
         }
     }
 
@@ -431,25 +459,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const inputValue = videoInput.value.trim();
         currentPlaylistId = '';
-        const videoIds = await extractVideoIds(inputValue);
+        
+        try {
+            const videoIds = await extractVideoIds(inputValue);
 
-        if (videoIds.length === 0) {
-            alert('Please enter valid YouTube video ID(s), URL(s), or playlist ID');
-            return;
+            if (videoIds.length === 0) {
+                alert('Please enter valid YouTube video ID(s), URL(s), or playlist ID');
+                return;
+            }
+
+            currentPlaylist = videoIds;
+            currentVideoIndex = 0;
+
+            const params = {
+                videoId: currentPlaylistId || inputValue,
+                sleepTimer: sleepTimerSelect.value,
+                loop: loopCheckbox.checked,
+                position: positionSelect.value,
+                title: titleInput.value.trim()
+            };
+
+            window.startPlayer(params);
+        } catch (error) {
+            hideLoading();
+            alert('Failed to load playlist. Please try again or check your internet connection.');
         }
-
-        currentPlaylist = videoIds;
-        currentVideoIndex = 0;
-
-        const params = {
-            videoId: currentPlaylistId || inputValue,
-            sleepTimer: sleepTimerSelect.value,
-            loop: loopCheckbox.checked,
-            position: positionSelect.value,
-            title: titleInput.value.trim()
-        };
-
-        window.startPlayer(params);
     });
 
     // Back to main handler (edit mode)
