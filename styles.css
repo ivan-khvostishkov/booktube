@@ -85,33 +85,34 @@ h1 {
 
 form {
     background: #2a2a2a;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     width: 100%;
-    max-width: 350px;
+    max-width: 280px;
 }
 
 .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 500;
     color: #ddd;
+    font-size: 0.9rem;
 }
 
 input[type="text"],
 select {
     width: 100%;
-    padding: 8px;
+    padding: 6px;
     background: #1a1a1a;
-    border: 2px solid #444;
-    border-radius: 5px;
+    border: 1px solid #444;
+    border-radius: 4px;
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     transition: border-color 0.3s;
 }
 
@@ -140,19 +141,19 @@ input[type="checkbox"] {
 
 .play-button {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background: #ff6b6b;
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
     transition: background 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .play-button:hover {
