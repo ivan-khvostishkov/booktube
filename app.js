@@ -381,15 +381,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.startPlayer = async function(params) {
         console.log('Starting player with params:', params);
 
-        // First show the player screen
-        window.showPlayerScreen();
-
-        // Extract video IDs and set up playlist
+        // Extract video IDs and set up playlist first (before switching screens)
         const videoIds = await extractVideoIds(params.videoId);
         if (videoIds.length === 0) {
             alert('No valid video IDs found');
             return;
         }
+
+        // Now show the player screen after playlist is loaded
+        window.showPlayerScreen();
         
         currentPlaylist = videoIds;
         currentVideoIndex = 0;
