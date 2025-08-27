@@ -7,6 +7,7 @@ let sleepTimerInterval;
 let sleepTimerEndTime;
 let currentPlaylist = [];
 let currentVideoIndex = 0;
+let currentPlaylistId = '';
 
 // Load YouTube IFrame API
 const tag = document.createElement('script');
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (playlistMatch || (id.length > 11 && id.startsWith('PL'))) {
                 const playlistId = playlistMatch ? playlistMatch[1] : id;
                 console.log('Detected playlist ID:', playlistId);
+                currentPlaylistId = playlistId;
                 try {
                     const playlistVideos = await fetchPlaylistVideos(playlistId);
                     console.log('Fetched playlist videos:', playlistVideos);
@@ -126,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update URL with parameters
     function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
-        const videoParam = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
+        const videoParam = currentPlaylistId || params.videoId;
         url.searchParams.set('v', videoParam);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
@@ -261,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load form values from params
     function loadFormFromParams(params) {
         if (params.videoId) {
-            videoInput.value = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
+            videoInput.value = params.videoId;
             sleepTimerSelect.value = params.sleepTimer;
             loopCheckbox.checked = params.loop;
             positionSelect.value = params.position;
@@ -427,7 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         console.log('Form submitted');
 
-        const videoIds = await extractVideoIds(videoInput.value.trim());
+        const inputValue = videoInput.value.trim();
+        currentPlaylistId = '';
+        const videoIds = await extractVideoIds(inputValue);
 
         if (videoIds.length === 0) {
             alert('Please enter valid YouTube video ID(s), URL(s), or playlist ID');
@@ -438,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentVideoIndex = 0;
 
         const params = {
-            videoId: videoIds.join(' '),
+            videoId: currentPlaylistId || inputValue,
             sleepTimer: sleepTimerSelect.value,
             loop: loopCheckbox.checked,
             position: positionSelect.value,
@@ -510,11 +514,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if we should auto-start based on URL params
         const params = parseQueryParams();
         if (params.videoId) {
+            currentPlaylistId = '';
             const videoIds = await extractVideoIds(params.videoId);
             if (videoIds.length > 0) {
                 currentPlaylist = videoIds;
                 currentVideoIndex = 0;
-                params.videoId = videoIds[0];
                 
                 // Load form values
                 loadFormFromParams(params);
