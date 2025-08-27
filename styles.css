@@ -81,19 +81,21 @@ h1 {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    padding-bottom: 80px;
 }
 
 form {
     background: #2a2a2a;
-    padding: 40px;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     width: 100%;
-    max-width: 500px;
+    max-width: 450px;
+    transform: scale(0.9);
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 label {
