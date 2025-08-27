@@ -80,22 +80,20 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    padding-bottom: 80px;
+    padding: 10px;
 }
 
 form {
     background: #2a2a2a;
-    padding: 30px;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     width: 100%;
-    max-width: 450px;
-    transform: scale(0.9);
+    max-width: 350px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 label {
@@ -108,12 +106,12 @@ label {
 input[type="text"],
 select {
     width: 100%;
-    padding: 12px;
+    padding: 8px;
     background: #1a1a1a;
     border: 2px solid #444;
     border-radius: 5px;
     color: #fff;
-    font-size: 16px;
+    font-size: 14px;
     transition: border-color 0.3s;
 }
 
@@ -142,19 +140,19 @@ input[type="checkbox"] {
 
 .play-button {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     background: #ff6b6b;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     transition: background 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .play-button:hover {
