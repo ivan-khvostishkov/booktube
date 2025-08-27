@@ -28,6 +28,7 @@ Some sample audiobooks to start with:
 * [Siddhartha by Hermann Hesse](https://booktube.nosocial.net/?v=vS4ble0Uznk&sleep=30&loop=false&pos=saved&title=Siddhartha+By+Hermann+Hesse&edit=true)
 * [The Glass Bead Game by Hermann Hesse (in German)](https://booktube.nosocial.net/?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&sleep=30&loop=false&pos=saved&title=Das+Glasperlenspiel+von+Hermann+Hesse&edit=true)
 * [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=30&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
+* [The Master and Margarita by Mikhail Bulgakov](https://booktube.nosocial.net/?v=PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC&sleep=30&loop=false&pos=saved&title=The+Master+and+Margarita+by+Mikhail+Bulgakov&edit=true)
 
 ### Basic Playback
 
