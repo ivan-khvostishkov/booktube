@@ -5,6 +5,8 @@ let positionSaveInterval;
 let sleepTimerTimeout;
 let sleepTimerInterval;
 let sleepTimerEndTime;
+let currentPlaylist = [];
+let currentVideoIndex = 0;
 
 // Load YouTube IFrame API
 const tag = document.createElement('script');
@@ -33,11 +35,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
 
-    // Extract video ID from URL
-    function extractVideoId(input) {
+    // Extract video IDs from input (supports multiple IDs)
+    function extractVideoIds(input) {
+        const ids = input.trim().split(/\s+/);
         const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        const match = input.match(regex);
-        return match ? match[1] : input;
+        return ids.map(id => {
+            const match = id.match(regex);
+            return match ? match[1] : id;
+        }).filter(id => id.length === 11);
     }
 
     // Parse query parameters
@@ -84,6 +89,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get saved position from localStorage
     function getSavedPosition(videoId) {
         return parseFloat(localStorage.getItem(`booktube_position_${videoId}`) || '0');
+    }
+
+    // Save playlist position
+    function savePlaylistPosition(playlistKey, videoIndex, position) {
+        const data = { videoIndex, position };
+        localStorage.setItem(`booktube_playlist_${playlistKey}`, JSON.stringify(data));
+    }
+
+    // Get saved playlist position
+    function getSavedPlaylistPosition(playlistKey) {
+        const data = localStorage.getItem(`booktube_playlist_${playlistKey}`);
+        return data ? JSON.parse(data) : { videoIndex: 0, position: 0 };
+    }
+
+    // Generate playlist key from video IDs
+    function getPlaylistKey(videoIds) {
+        return videoIds.join('_');
     }
 
     // Format time for display
@@ -223,7 +245,14 @@ document.addEventListener('DOMContentLoaded', function() {
             positionSaveInterval = setInterval(() => {
                 if (player && player.getCurrentTime) {
                     const currentTime = player.getCurrentTime();
-                    savePosition(params.videoId, currentTime);
+                    const currentVideoId = currentPlaylist[currentVideoIndex];
+                    savePosition(currentVideoId, currentTime);
+                    
+                    // Save playlist position if multiple videos
+                    if (currentPlaylist.length > 1) {
+                        const playlistKey = getPlaylistKey(currentPlaylist);
+                        savePlaylistPosition(playlistKey, currentVideoIndex, currentTime);
+                    }
                 }
             }, 5000); // Save every 5 seconds
         }
@@ -233,7 +262,21 @@ document.addEventListener('DOMContentLoaded', function() {
     window.onPlayerStateChange = function(event) {
         if (event.data === YT.PlayerState.ENDED) {
             const params = parseQueryParams();
-            if (params.loop) {
+            
+            // Handle playlist progression
+            if (currentPlaylist.length > 1) {
+                currentVideoIndex++;
+                if (currentVideoIndex >= currentPlaylist.length) {
+                    if (params.loop) {
+                        currentVideoIndex = 0;
+                        const nextVideoId = currentPlaylist[currentVideoIndex];
+                        player.loadVideoById(nextVideoId);
+                    }
+                } else {
+                    const nextVideoId = currentPlaylist[currentVideoIndex];
+                    player.loadVideoById(nextVideoId);
+                }
+            } else if (params.loop) {
                 player.seekTo(0);
                 player.playVideo();
             }
@@ -272,10 +315,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }, minutes * 60 * 1000);
         }
 
-        // Determine start position
+        // Determine start position and video index for playlist
         let startSeconds = 0;
         if (params.position === 'saved') {
-            startSeconds = getSavedPosition(params.videoId);
+            if (currentPlaylist.length > 1) {
+                const playlistKey = getPlaylistKey(currentPlaylist);
+                const savedPlaylist = getSavedPlaylistPosition(playlistKey);
+                currentVideoIndex = savedPlaylist.videoIndex;
+                startSeconds = savedPlaylist.position;
+                params.videoId = currentPlaylist[currentVideoIndex];
+            } else {
+                startSeconds = getSavedPosition(params.videoId);
+            }
         }
 
         // Create player after screen transition
@@ -300,15 +351,18 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         console.log('Form submitted');
 
-        const videoId = extractVideoId(videoInput.value.trim());
+        const videoIds = extractVideoIds(videoInput.value.trim());
 
-        if (!videoId) {
-            alert('Please enter a valid YouTube video ID or URL');
+        if (videoIds.length === 0) {
+            alert('Please enter valid YouTube video ID(s) or URL(s)');
             return;
         }
 
+        currentPlaylist = videoIds;
+        currentVideoIndex = 0;
+
         const params = {
-            videoId: videoId,
+            videoId: videoIds[0],
             sleepTimer: sleepTimerSelect.value,
             loop: loopCheckbox.checked,
             position: positionSelect.value,
