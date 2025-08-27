@@ -35,14 +35,78 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
 
-    // Extract video IDs from input (supports multiple IDs)
-    function extractVideoIds(input) {
+    // Extract video IDs from input (supports multiple IDs and playlist IDs)
+    async function extractVideoIds(input) {
+        console.log('Extracting video IDs from input:', input);
         const ids = input.trim().split(/\s+/);
-        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        return ids.map(id => {
-            const match = id.match(regex);
-            return match ? match[1] : id;
-        }).filter(id => id.length === 11);
+        const videoRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const playlistRegex = /(?:youtube\.com\/.*[?&]list=|youtube\.com\/playlist\?list=)([a-zA-Z0-9_-]+)/;
+        
+        const results = [];
+        
+        for (const id of ids) {
+            console.log('Processing ID:', id);
+            // Check if it's a playlist ID or URL
+            const playlistMatch = id.match(playlistRegex);
+            if (playlistMatch || (id.length > 11 && id.startsWith('PL'))) {
+                const playlistId = playlistMatch ? playlistMatch[1] : id;
+                console.log('Detected playlist ID:', playlistId);
+                try {
+                    const playlistVideos = await fetchPlaylistVideos(playlistId);
+                    console.log('Fetched playlist videos:', playlistVideos);
+                    results.push(...playlistVideos);
+                } catch (error) {
+                    console.error('Failed to fetch playlist:', error);
+                }
+            } else {
+                // Handle single video ID or URL
+                const videoMatch = id.match(videoRegex);
+                const videoId = videoMatch ? videoMatch[1] : id;
+                console.log('Processing video ID:', videoId, 'Length:', videoId.length);
+                if (videoId.length === 11) {
+                    results.push(videoId);
+                }
+            }
+        }
+        
+        console.log('Final extracted video IDs:', results);
+        return results;
+    }
+    
+    // Fetch video IDs from YouTube playlist using public RSS feed
+    async function fetchPlaylistVideos(playlistId) {
+        console.log('Fetching playlist videos for ID:', playlistId);
+        const proxyUrl = 'https://api.allorigins.win/raw?url=';
+        const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+        console.log('RSS URL:', rssUrl);
+        
+        try {
+            const response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+            const xmlText = await response.text();
+            console.log('RSS response length:', xmlText.length);
+            console.log('RSS response preview:', xmlText.substring(0, 500));
+            
+            // Parse XML to extract video IDs
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            const entries = xmlDoc.getElementsByTagName('entry');
+            console.log('Found entries:', entries.length);
+            
+            const videoIds = [];
+            for (let i = 0; i < entries.length; i++) {
+                const videoId = entries[i].getElementsByTagName('yt:videoId')[0]?.textContent;
+                console.log(`Entry ${i}: videoId =`, videoId);
+                if (videoId) {
+                    videoIds.push(videoId);
+                }
+            }
+            
+            console.log('Extracted video IDs from playlist:', videoIds);
+            return videoIds;
+        } catch (error) {
+            console.error('Error fetching playlist:', error);
+            throw error;
+        }
     }
 
     // Parse query parameters
@@ -285,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Start player
-    window.startPlayer = function(params) {
+    window.startPlayer = async function(params) {
         console.log('Starting player with params:', params);
 
         // First show the player screen
@@ -293,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // If params.videoId contains multiple IDs, set up playlist
         if (params.videoId.includes(' ')) {
-            const videoIds = extractVideoIds(params.videoId);
+            const videoIds = await extractVideoIds(params.videoId);
             currentPlaylist = videoIds;
             currentVideoIndex = 0;
             params.videoId = videoIds[0];
@@ -359,14 +423,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Form submit handler
-    playForm.addEventListener('submit', (e) => {
+    playForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         console.log('Form submitted');
 
-        const videoIds = extractVideoIds(videoInput.value.trim());
+        const videoIds = await extractVideoIds(videoInput.value.trim());
 
         if (videoIds.length === 0) {
-            alert('Please enter valid YouTube video ID(s) or URL(s)');
+            alert('Please enter valid YouTube video ID(s), URL(s), or playlist ID');
             return;
         }
 
@@ -439,14 +503,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // YouTube API callback
-    window.onYouTubeIframeAPIReady = function() {
+    window.onYouTubeIframeAPIReady = async function() {
         console.log('YouTube API ready');
         playerReady = true;
 
         // Check if we should auto-start based on URL params
         const params = parseQueryParams();
         if (params.videoId) {
-            const videoIds = extractVideoIds(params.videoId);
+            const videoIds = await extractVideoIds(params.videoId);
             if (videoIds.length > 0) {
                 currentPlaylist = videoIds;
                 currentVideoIndex = 0;

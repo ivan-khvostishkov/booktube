@@ -15,7 +15,7 @@ https://booktube.nosocial.net
 - 🎲 **Random Start** - Begin playback from a random position
 - 🔖 **Bookmarkable URLs** - Save and share your playback settings
 - 📝 **Custom Titles** - Set personalized titles for your audiobooks
-- 📋 **Playlist Support** - Play multiple videos in sequence
+- 📋 **Playlist Support** - Play YouTube playlists or multiple videos in sequence
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
@@ -23,17 +23,17 @@ https://booktube.nosocial.net
 
 Some sample audiobooks to start with:
 
-* [The Bhagavad Gita, The Lord's Song](https://booktube.nosocial.net/?v=IIEJNUO1BoQ&sleep=15&loop=false&pos=saved)
-* [Siddhartha By Hermann Hesse](https://booktube.nosocial.net/?v=vS4ble0Uznk&sleep=30&loop=false&pos=saved)
-* [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=30&loop=false&pos=saved)
+* [The Bhagavad Gita, The Lord's Song](https://booktube.nosocial.net/?v=IIEJNUO1BoQ&sleep=15&loop=false&pos=saved&title=The+Bhagavad+Gita%2C+The+Lord%27s+Song&edit=true)
+* [Siddhartha By Hermann Hesse](https://booktube.nosocial.net/?v=vS4ble0Uznk&sleep=30&loop=false&pos=saved&title=Siddhartha+By+Hermann+Hesse&edit=true)
+* [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=30&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
 
 ### Basic Playback
 
 0. Navigate to https://booktube.nosocial.net/
 
-1. Enter a YouTube video ID or full URL in the input field
+1. Enter a YouTube video ID, full URL, or playlist ID in the input field
 2. Optionally set a custom title for your audiobook
-3. For playlists, add multiple video IDs separated by commas
+3. For playlists, use a YouTube playlist ID (PLxxx) or add multiple video IDs separated by spaces
 4. Select your desired settings:
     - **Sleep Timer**: Choose when to automatically pause playback
     - **Loop**: Enable to replay the video indefinitely
@@ -45,12 +45,13 @@ Some sample audiobooks to start with:
 BookTube supports URL parameters for bookmarking and sharing:
 
 ```
-?v=VIDEO_ID&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&edit=true/false
+?v=VIDEO_ID_OR_PLAYLIST&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&edit=true/false
 ```
 
 Examples:
 - Auto-play with custom title (30-minute timer): `?v=dQw4w9WgXcQ&title=My%20Audiobook&sleep=30`
-- Playlist with multiple videos: `?v=dQw4w9WgXcQ,abc123def,xyz789ghi&loop=true`
+- YouTube playlist: `?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&loop=true`
+- Multiple videos: `?v=dQw4w9WgXcQ abc123def xyz789ghi&loop=true`
 - Loop from saved position: `?v=dQw4w9WgXcQ&loop=true&pos=saved`
 - Open in edit mode: `?v=dQw4w9WgXcQ&sleep=60&edit=true`
 
