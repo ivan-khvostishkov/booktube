@@ -156,8 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update URL with parameters
     function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
-        const videoParam = currentPlaylistId || params.videoId;
-        url.searchParams.set('v', videoParam);
+        url.searchParams.set('v', params.videoId);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
@@ -385,13 +384,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // First show the player screen
         window.showPlayerScreen();
 
-        // If params.videoId contains multiple IDs, set up playlist
-        if (params.videoId.includes(' ')) {
-            const videoIds = await extractVideoIds(params.videoId);
-            currentPlaylist = videoIds;
-            currentVideoIndex = 0;
-            params.videoId = videoIds[0];
+        // Extract video IDs and set up playlist
+        const videoIds = await extractVideoIds(params.videoId);
+        if (videoIds.length === 0) {
+            alert('No valid video IDs found');
+            return;
         }
+        
+        currentPlaylist = videoIds;
+        currentVideoIndex = 0;
 
         // Update URL (remove edit mode when playing)
         updateURL(params, false);
@@ -420,31 +421,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Determine start position and video index for playlist
         let startSeconds = 0;
+        const actualVideoId = currentPlaylist[currentVideoIndex];
+        
         if (params.position === 'saved') {
             if (currentPlaylist.length > 1) {
                 const playlistKey = getPlaylistKey(currentPlaylist);
                 const savedPlaylist = getSavedPlaylistPosition(playlistKey);
                 currentVideoIndex = savedPlaylist.videoIndex;
                 startSeconds = savedPlaylist.position;
-                params.videoId = currentPlaylist[currentVideoIndex];
             } else {
-                startSeconds = getSavedPosition(params.videoId);
+                startSeconds = getSavedPosition(actualVideoId);
             }
         } else if (params.position === 'random' && currentPlaylist.length > 1) {
             currentVideoIndex = Math.floor(Math.random() * currentPlaylist.length);
-            params.videoId = currentPlaylist[currentVideoIndex];
         }
 
         // Create player after screen transition
         setTimeout(() => {
             if (playerReady) {
+                const videoToPlay = currentPlaylist[currentVideoIndex];
                 if (params.position === 'random') {
                     // For random position, get duration first then create player
-                    getRandomStartTime(params.videoId, (randomTime) => {
-                        window.createPlayer(params.videoId, randomTime, params);
+                    getRandomStartTime(videoToPlay, (randomTime) => {
+                        window.createPlayer(videoToPlay, randomTime, params);
                     });
                 } else {
-                    window.createPlayer(params.videoId, startSeconds, params);
+                    window.createPlayer(videoToPlay, startSeconds, params);
                 }
             } else {
                 console.error('YouTube API not ready yet');
@@ -458,32 +460,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Form submitted');
 
         const inputValue = videoInput.value.trim();
-        currentPlaylistId = '';
         
-        try {
-            const videoIds = await extractVideoIds(inputValue);
+        const params = {
+            videoId: inputValue,
+            sleepTimer: sleepTimerSelect.value,
+            loop: loopCheckbox.checked,
+            position: positionSelect.value,
+            title: titleInput.value.trim()
+        };
 
-            if (videoIds.length === 0) {
-                alert('Please enter valid YouTube video ID(s), URL(s), or playlist ID');
-                return;
-            }
-
-            currentPlaylist = videoIds;
-            currentVideoIndex = 0;
-
-            const params = {
-                videoId: currentPlaylistId || inputValue,
-                sleepTimer: sleepTimerSelect.value,
-                loop: loopCheckbox.checked,
-                position: positionSelect.value,
-                title: titleInput.value.trim()
-            };
-
-            window.startPlayer(params);
-        } catch (error) {
-            hideLoading();
-            alert('Failed to load playlist. Please try again or check your internet connection.');
-        }
+        window.startPlayer(params);
     });
 
     // Back to main handler (edit mode)
@@ -520,8 +506,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Switch screens
         window.showMainScreen();
 
-        // Update URL to include edit mode
-        const currentParams = parseQueryParams();
+        // Update URL to include edit mode with current form values
+        const currentParams = {
+            videoId: videoInput.value.trim(),
+            sleepTimer: sleepTimerSelect.value,
+            loop: loopCheckbox.checked,
+            position: positionSelect.value,
+            title: titleInput.value.trim()
+        };
         updateURL(currentParams, true);
     });
 
@@ -548,19 +540,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if we should auto-start based on URL params
         const params = parseQueryParams();
         if (params.videoId) {
-            currentPlaylistId = '';
-            const videoIds = await extractVideoIds(params.videoId);
-            if (videoIds.length > 0) {
-                currentPlaylist = videoIds;
-                currentVideoIndex = 0;
-                
-                // Load form values
-                loadFormFromParams(params);
+            // Load form values
+            loadFormFromParams(params);
 
-                // Only auto-play if not in edit mode
-                if (!params.edit) {
-                    window.startPlayer(params);
-                }
+            // Only auto-play if not in edit mode
+            if (!params.edit) {
+                window.startPlayer(params);
             }
         }
     }
