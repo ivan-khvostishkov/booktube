@@ -14,6 +14,8 @@ https://booktube.nosocial.net
 - 📍 **Position Memory** - Resume from where you left off
 - 🎲 **Random Start** - Begin playback from a random position
 - 🔖 **Bookmarkable URLs** - Save and share your playback settings
+- 📝 **Custom Titles** - Set personalized titles for your audiobooks
+- 📋 **Playlist Support** - Play multiple videos in sequence
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
@@ -33,22 +35,25 @@ That's it! No server setup or build process required.
 ### Basic Playback
 
 1. Enter a YouTube video ID or full URL in the input field
-2. Select your desired settings:
+2. Optionally set a custom title for your audiobook
+3. For playlists, add multiple video IDs separated by commas
+4. Select your desired settings:
     - **Sleep Timer**: Choose when to automatically pause playback
     - **Loop**: Enable to replay the video indefinitely
     - **Position**: Start from beginning, last saved position, or random
-3. Click the Play button
+5. Click the Play button
 
 ### URL Parameters
 
 BookTube supports URL parameters for bookmarking and sharing:
 
 ```
-?v=VIDEO_ID&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&edit=true/false
+?v=VIDEO_ID&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&edit=true/false
 ```
 
 Examples:
-- Auto-play with 30-minute timer: `?v=dQw4w9WgXcQ&sleep=30`
+- Auto-play with custom title (30-minute timer): `?v=dQw4w9WgXcQ&title=My%20Audiobook&sleep=30`
+- Playlist with multiple videos: `?v=dQw4w9WgXcQ,abc123def,xyz789ghi&loop=true`
 - Loop from saved position: `?v=dQw4w9WgXcQ&loop=true&pos=saved`
 - Open in edit mode: `?v=dQw4w9WgXcQ&sleep=60&edit=true`
 
