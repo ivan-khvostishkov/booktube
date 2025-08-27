@@ -191,15 +191,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update page title
     function updatePageTitle(title) {
-        const pageTitle = title && title !== 'YouTube Audiobook Player' ? `BookTube - ${title}` : 'BookTube - YouTube Audiobook Player';
-        document.title = pageTitle;
+        document.title = title && title !== 'YouTube Audiobook Player' ? `BookTube - ${title}` : 'BookTube - YouTube Audiobook Player';
     }
 
     // Load form values from params
     function loadFormFromParams(params) {
         if (params.videoId) {
-            const displayValue = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
-            videoInput.value = displayValue;
+            videoInput.value = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
             sleepTimerSelect.value = params.sleepTimer;
             loopCheckbox.checked = params.loop;
             positionSelect.value = params.position;
