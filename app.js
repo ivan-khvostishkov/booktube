@@ -48,8 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Parse query parameters
     function parseQueryParams() {
         const params = new URLSearchParams(window.location.search);
+        const videoParam = params.get('v');
         return {
-            videoId: params.get('v'),
+            videoId: videoParam ? videoParam.replace(/\+/g, ' ') : null,
             sleepTimer: params.get('sleep') || '0',
             loop: params.get('loop') === 'true',
             position: params.get('pos') || 'beginning',
@@ -61,7 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update URL with parameters
     function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
-        url.searchParams.set('v', params.videoId);
+        const videoParam = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
+        url.searchParams.set('v', videoParam);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
@@ -196,7 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load form values from params
     function loadFormFromParams(params) {
         if (params.videoId) {
-            videoInput.value = params.videoId;
+            const displayValue = currentPlaylist.length > 1 ? currentPlaylist.join(' ') : params.videoId;
+            videoInput.value = displayValue;
             sleepTimerSelect.value = params.sleepTimer;
             loopCheckbox.checked = params.loop;
             positionSelect.value = params.position;
@@ -290,6 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // First show the player screen
         window.showPlayerScreen();
 
+        // If params.videoId contains multiple IDs, set up playlist
+        if (params.videoId.includes(' ')) {
+            const videoIds = extractVideoIds(params.videoId);
+            currentPlaylist = videoIds;
+            currentVideoIndex = 0;
+            params.videoId = videoIds[0];
+        }
+
         // Update URL (remove edit mode when playing)
         updateURL(params, false);
 
@@ -362,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentVideoIndex = 0;
 
         const params = {
-            videoId: videoIds[0],
+            videoId: videoIds.join(' '),
             sleepTimer: sleepTimerSelect.value,
             loop: loopCheckbox.checked,
             position: positionSelect.value,
@@ -434,12 +445,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if we should auto-start based on URL params
         const params = parseQueryParams();
         if (params.videoId) {
-            // Load form values
-            loadFormFromParams(params);
+            const videoIds = extractVideoIds(params.videoId);
+            if (videoIds.length > 0) {
+                currentPlaylist = videoIds;
+                currentVideoIndex = 0;
+                params.videoId = videoIds[0];
+                
+                // Load form values
+                loadFormFromParams(params);
 
-            // Only auto-play if not in edit mode
-            if (!params.edit) {
-                window.startPlayer(params);
+                // Only auto-play if not in edit mode
+                if (!params.edit) {
+                    window.startPlayer(params);
+                }
             }
         }
     }
