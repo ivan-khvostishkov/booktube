@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentYearSpan = document.getElementById('currentYear');
     const sleepTimerOverlay = document.getElementById('sleepTimerOverlay');
     const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
+    const titleInput = document.getElementById('titleInput');
 
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
@@ -47,7 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sleepTimer: params.get('sleep') || '0',
             loop: params.get('loop') === 'true',
             position: params.get('pos') || 'beginning',
-            edit: params.get('edit') === 'true'
+            edit: params.get('edit') === 'true',
+            title: params.get('title') || ''
         };
     }
 
@@ -58,6 +60,12 @@ document.addEventListener('DOMContentLoaded', function() {
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
+        
+        if (params.title && params.title !== 'YouTube Audiobook Player') {
+            url.searchParams.set('title', params.title);
+        } else {
+            url.searchParams.delete('title');
+        }
 
         if (includeEdit) {
             url.searchParams.set('edit', 'true');
@@ -157,6 +165,12 @@ document.addEventListener('DOMContentLoaded', function() {
         mainScreen.classList.add('active');
     }
 
+    // Update page title
+    function updatePageTitle(title) {
+        const pageTitle = title && title !== 'YouTube Audiobook Player' ? `BookTube - ${title}` : 'BookTube - YouTube Audiobook Player';
+        document.title = pageTitle;
+    }
+
     // Load form values from params
     function loadFormFromParams(params) {
         if (params.videoId) {
@@ -164,6 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sleepTimerSelect.value = params.sleepTimer;
             loopCheckbox.checked = params.loop;
             positionSelect.value = params.position;
+            titleInput.value = params.title || '';
+            updatePageTitle(params.title);
         }
     }
 
@@ -295,7 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
             videoId: videoId,
             sleepTimer: sleepTimerSelect.value,
             loop: loopCheckbox.checked,
-            position: positionSelect.value
+            position: positionSelect.value,
+            title: titleInput.value.trim()
         };
 
         window.startPlayer(params);
@@ -388,9 +405,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Title input real-time update
+    titleInput.addEventListener('input', () => {
+        updatePageTitle(titleInput.value.trim());
+    });
+
     // Initial load - check if we're in edit mode
     const initialParams = parseQueryParams();
     if (initialParams.videoId && initialParams.edit) {
         loadFormFromParams(initialParams);
+    } else if (initialParams.title) {
+        updatePageTitle(initialParams.title);
     }
 });
