@@ -69,6 +69,8 @@ h1 {
     cursor: pointer;
     color: #888;
     transition: color 0.3s;
+    z-index: 100;
+    position: relative;
 }
 
 .help-icon:hover {
