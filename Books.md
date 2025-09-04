@@ -13,4 +13,4 @@
 * [The Glass Bead Game by Hermann Hesse (in German)](https://booktube.nosocial.net/?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&sleep=20&loop=false&pos=saved&title=Das+Glasperlenspiel+von+Hermann+Hesse&edit=true) - Das Glasperlenspiel von Hermann Hesse
 * [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=20&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
 * [The Master and Margarita by Mikhail Bulgakov](https://booktube.nosocial.net/?v=PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC&sleep=20&loop=false&pos=saved&title=The+Master+and+Margarita+by+Mikhail+Bulgakov&edit=true)
-  
+* [One Hundred Years of Solitude by Gabriel García Márquez](https://booktube.nosocial.net/?v=HeyRm9WubQ0+6OpKJYYvooE&sleep=20&loop=false&pos=saved&title=One+Hundred+Years+of+Solitude.+Gabriel+García+Márquez&edit=true)
