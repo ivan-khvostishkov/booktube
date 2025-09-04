@@ -14,3 +14,4 @@
 * [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=20&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
 * [The Master and Margarita by Mikhail Bulgakov](https://booktube.nosocial.net/?v=PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC&sleep=20&loop=false&pos=saved&title=The+Master+and+Margarita+by+Mikhail+Bulgakov&edit=true)
 * [One Hundred Years of Solitude by Gabriel García Márquez](https://booktube.nosocial.net/?v=HeyRm9WubQ0+6OpKJYYvooE&sleep=20&loop=false&pos=saved&title=One+Hundred+Years+of+Solitude.+Gabriel+García+Márquez&edit=true)
+* [Тысяча и одна ночь. Сказки](https://booktube.nosocial.net/?v=PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr&sleep=20&loop=false&pos=saved&title=%D0%A2%D1%8B%D1%81%D1%8F%D1%87%D0%B0+%D0%B8+%D0%BE%D0%B4%D0%BD%D0%B0+%D0%BD%D0%BE%D1%87%D1%8C.+%D0%A1%D0%BA%D0%B0%D0%B7%D0%BA%D0%B8&edit=true)
