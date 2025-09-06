@@ -8,6 +8,7 @@ let sleepTimerEndTime;
 let currentPlaylist = [];
 let currentVideoIndex = 0;
 let currentPlaylistId = '';
+let isShuffledPlaylist = false;
 
 // Load YouTube IFrame API
 const tag = document.createElement('script');
@@ -461,6 +462,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return videoIds.join('_');
     }
 
+    // Shuffle array using Fisher-Yates algorithm
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
     // Format time for display
     function formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
@@ -600,8 +611,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const currentVideoId = currentPlaylist[currentVideoIndex];
                     savePosition(currentVideoId, currentTime);
                     
-                    // Save playlist position if multiple videos
-                    if (currentPlaylist.length > 1) {
+                    // Save playlist position if multiple videos (but not for shuffled playlists)
+                    if (currentPlaylist.length > 1 && !isShuffledPlaylist) {
                         const playlistKey = getPlaylistKey(currentPlaylist);
                         savePlaylistPosition(playlistKey, currentVideoIndex, currentTime);
                     }
@@ -622,11 +633,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (params.loop) {
                         currentVideoIndex = 0;
                         const nextVideoId = currentPlaylist[currentVideoIndex];
-                        player.loadVideoById(nextVideoId);
+                        // For shuffled playlists, start from saved position
+                        if (isShuffledPlaylist) {
+                            const savedTime = getSavedPosition(nextVideoId);
+                            player.loadVideoById(nextVideoId, savedTime);
+                        } else {
+                            player.loadVideoById(nextVideoId);
+                        }
                     }
                 } else {
                     const nextVideoId = currentPlaylist[currentVideoIndex];
-                    player.loadVideoById(nextVideoId);
+                    // For shuffled playlists, start from saved position
+                    if (isShuffledPlaylist) {
+                        const savedTime = getSavedPosition(nextVideoId);
+                        player.loadVideoById(nextVideoId, savedTime);
+                    } else {
+                        player.loadVideoById(nextVideoId);
+                    }
                 }
             } else if (params.loop) {
                 player.seekTo(0);
@@ -649,7 +672,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Now show the player screen after playlist is loaded
         window.showPlayerScreen();
         
-        currentPlaylist = videoIds;
+        // Handle shuffle mode
+        if (params.position === 'shuffle' && videoIds.length > 1) {
+            currentPlaylist = shuffleArray(videoIds);
+            isShuffledPlaylist = true;
+        } else {
+            currentPlaylist = videoIds;
+            isShuffledPlaylist = false;
+        }
         currentVideoIndex = 0;
 
         // Update URL (remove edit mode when playing)
@@ -690,6 +720,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 startSeconds = getSavedPosition(actualVideoId);
             }
+        } else if (params.position === 'shuffle') {
+            // For shuffle mode, start each video from its saved position
+            startSeconds = getSavedPosition(actualVideoId);
         } else if (params.position === 'random' && currentPlaylist.length > 1) {
             currentVideoIndex = Math.floor(Math.random() * currentPlaylist.length);
         }
