@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (newCount > 0) {
-                    console.log(`Sequential batch ${i}: Found ${newCount} new videos`);
+                    console.log(`Sequential batch ${i}: Found ${newCount} new videos, total: ${videoIds.length}`);
                 } else {
                     console.log(`No new videos found in batch ${i}, stopping`);
                     break; // Stop if no new videos found
