@@ -9,6 +9,7 @@ let currentPlaylist = [];
 let currentVideoIndex = 0;
 let currentPlaylistId = '';
 let isShuffledPlaylist = false;
+let originalPlaylistInput = '';
 
 // Load YouTube IFrame API
 const tag = document.createElement('script');
@@ -409,13 +410,13 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
         
-        // Extract video IDs to get clean IDs for URL
-        const videoIds = await extractVideoIds(params.videoId);
-        const cleanVideoParam = videoIds.length > 0 ? 
-            (videoIds.length === 1 ? videoIds[0] : videoIds.join(' ')) : 
-            params.videoId;
+        // Use original playlist input if it's a playlist, otherwise use the processed video IDs
+        let videoParam = params.videoId;
+        if (originalPlaylistInput && (originalPlaylistInput.startsWith('PL') || originalPlaylistInput.includes('list='))) {
+            videoParam = originalPlaylistInput;
+        }
         
-        url.searchParams.set('v', cleanVideoParam);
+        url.searchParams.set('v', videoParam);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
@@ -559,6 +560,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load form values from params
     function loadFormFromParams(params) {
         if (params.videoId) {
+            // Store original input to preserve playlist IDs
+            originalPlaylistInput = params.videoId;
             videoInput.value = params.videoId;
             sleepTimerSelect.value = params.sleepTimer;
             loopCheckbox.checked = params.loop;
@@ -661,6 +664,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start player
     window.startPlayer = async function(params) {
         console.log('Starting player with params:', params);
+
+        // Store original input to preserve playlist IDs in URL
+        originalPlaylistInput = params.videoId;
 
         // Extract video IDs and set up playlist first (before switching screens)
         const videoIds = await extractVideoIds(params.videoId);
@@ -800,8 +806,14 @@ document.addEventListener('DOMContentLoaded', function() {
         window.showMainScreen();
 
         // Update URL to include edit mode with current form values
+        // Preserve original playlist input if it was a playlist
+        let videoIdForUrl = videoInput.value.trim();
+        if (originalPlaylistInput && (originalPlaylistInput.startsWith('PL') || originalPlaylistInput.includes('list='))) {
+            videoIdForUrl = originalPlaylistInput;
+        }
+        
         const currentParams = {
-            videoId: videoInput.value.trim(),
+            videoId: videoIdForUrl,
             sleepTimer: sleepTimerSelect.value,
             loop: loopCheckbox.checked,
             position: positionSelect.value,
