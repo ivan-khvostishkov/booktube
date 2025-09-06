@@ -91,49 +91,141 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loadingIndicator').classList.remove('active');
     }
 
-    // Fetch video IDs from YouTube playlist using public RSS feed with multiple proxies
+    // Fetch all video IDs from YouTube playlist with pagination
     async function fetchPlaylistVideos(playlistId) {
         console.log('Fetching playlist videos for ID:', playlistId);
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
-        console.log('RSS URL:', rssUrl);
-        
         showLoading();
+        
+        const videoIds = [];
+        const seenIds = new Set();
+        let continuationToken = null;
+        let pageCount = 0;
+        const maxPages = 50; // Safety limit
+        
+        try {
+            // First, get initial page
+            const initialUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
+            let htmlText = await fetchWithProxy(initialUrl);
+            
+            // Extract initial videos and continuation token
+            extractVideoIds(htmlText, videoIds, seenIds);
+            continuationToken = extractContinuationToken(htmlText);
+            pageCount++;
+            
+            console.log(`Page ${pageCount}: ${videoIds.length} videos, continuation: ${continuationToken ? 'yes' : 'no'}`);
+            
+            // Continue fetching pages if there's a continuation token
+            while (continuationToken && pageCount < maxPages) {
+                const continueUrl = `https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8`;
+                const postData = {
+                    context: {
+                        client: {
+                            clientName: "WEB",
+                            clientVersion: "2.20231201.01.00"
+                        }
+                    },
+                    continuation: continuationToken
+                };
+                
+                const response = await fetch(continueUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData)
+                });
+                
+                if (!response.ok) break;
+                
+                const jsonData = await response.json();
+                const jsonText = JSON.stringify(jsonData);
+                
+                const prevCount = videoIds.length;
+                extractVideoIds(jsonText, videoIds, seenIds);
+                continuationToken = extractContinuationToken(jsonText);
+                pageCount++;
+                
+                console.log(`Page ${pageCount}: +${videoIds.length - prevCount} videos (total: ${videoIds.length}), continuation: ${continuationToken ? 'yes' : 'no'}`);
+                
+                if (videoIds.length === prevCount) break; // No new videos found
+            }
+            
+            console.log(`Final result: ${videoIds.length} unique video IDs from ${pageCount} pages`);
+            hideLoading();
+            return videoIds;
+            
+        } catch (error) {
+            console.error('Playlist fetching failed:', error);
+            hideLoading();
+            return await fetchPlaylistVideosRSS(playlistId);
+        }
+    }
+    
+    // Helper function to fetch with proxy fallback
+    async function fetchWithProxy(url) {
+        for (let i = 0; i < proxyServices.length; i++) {
+            try {
+                const response = await fetch(proxyServices[i] + encodeURIComponent(url));
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.text();
+            } catch (error) {
+                if (i === proxyServices.length - 1) throw error;
+            }
+        }
+    }
+    
+    // Extract video IDs from HTML/JSON text
+    function extractVideoIds(text, videoIds, seenIds) {
+        const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
+        let match;
+        while ((match = videoIdRegex.exec(text)) !== null) {
+            const videoId = match[1];
+            if (!seenIds.has(videoId)) {
+                seenIds.add(videoId);
+                videoIds.push(videoId);
+            }
+        }
+    }
+    
+    // Extract continuation token for next page
+    function extractContinuationToken(text) {
+        const tokenRegex = /"continuation":"([^"]+)"/;
+        const match = text.match(tokenRegex);
+        return match ? match[1] : null;
+    }
+    // Fallback RSS method (returns only 15 videos)
+    async function fetchPlaylistVideosRSS(playlistId) {
+        const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
         
         for (let i = 0; i < proxyServices.length; i++) {
             const proxyUrl = proxyServices[i];
-            console.log(`Trying proxy ${i + 1}/${proxyServices.length}:`, proxyUrl);
+            console.log(`Trying RSS proxy ${i + 1}/${proxyServices.length}:`, proxyUrl);
             
             try {
                 const response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const xmlText = await response.text();
-                console.log('RSS response length:', xmlText.length);
-                console.log('RSS response preview:', xmlText.substring(0, 500));
-                
-                // Parse XML to extract video IDs
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
                 const entries = xmlDoc.getElementsByTagName('entry');
-                console.log('Found entries:', entries.length);
                 
                 const videoIds = [];
                 for (let j = 0; j < entries.length; j++) {
                     const videoId = entries[j].getElementsByTagName('yt:videoId')[0]?.textContent;
-                    console.log(`Entry ${j}: videoId =`, videoId);
                     if (videoId) {
                         videoIds.push(videoId);
                     }
                 }
                 
-                console.log('Extracted video IDs from playlist:', videoIds);
+                console.log('RSS fallback extracted video IDs:', videoIds.length);
                 hideLoading();
                 return videoIds;
             } catch (error) {
-                console.error(`Proxy ${i + 1} failed:`, error);
+                console.error(`RSS proxy ${i + 1} failed:`, error);
                 if (i === proxyServices.length - 1) {
                     hideLoading();
-                    throw new Error('All proxy services failed');
+                    throw new Error('All methods failed');
                 }
             }
         }
