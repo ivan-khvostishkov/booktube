@@ -78,8 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Multiple proxy services for fallback
     const proxyServices = [
         'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?',
-        'https://api.codetabs.com/v1/proxy?quest='
+        'https://corsproxy.io/?'
     ];
 
     // Show/hide loading indicator
@@ -96,46 +95,247 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Fetching playlist videos for ID:', playlistId);
         showLoading();
         
-        const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
-        
         for (let i = 0; i < proxyServices.length; i++) {
             const proxyUrl = proxyServices[i];
             console.log(`Trying proxy ${i + 1}/${proxyServices.length}:`, proxyUrl);
             
             try {
-                const response = await fetch(proxyUrl + encodeURIComponent(playlistUrl));
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const htmlText = await response.text();
-                console.log('Playlist page loaded, length:', htmlText.length);
-                
-                // Extract video IDs using regex from the HTML
-                const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
-                const videoIds = [];
-                const seenIds = new Set();
-                
-                let match;
-                while ((match = videoIdRegex.exec(htmlText)) !== null) {
-                    const videoId = match[1];
-                    if (!seenIds.has(videoId)) {
-                        seenIds.add(videoId);
-                        videoIds.push(videoId);
-                    }
+                const videoIds = await fetchPlaylistFromPage(playlistId, proxyUrl);
+                if (videoIds.length > 0) {
+                    console.log(`Extracted ${videoIds.length} video IDs from playlist`);
+                    hideLoading();
+                    return videoIds;
                 }
-                
-                console.log(`Extracted ${videoIds.length} unique video IDs from playlist`);
-                hideLoading();
-                return videoIds;
-                
             } catch (error) {
                 console.error(`Proxy ${i + 1} failed:`, error);
-                if (i === proxyServices.length - 1) {
-                    console.log('All proxies failed, falling back to RSS');
-                    return await fetchPlaylistVideosRSS(playlistId);
+            }
+        }
+        
+        console.log('All methods failed, falling back to RSS');
+        hideLoading();
+        return await fetchPlaylistVideosRSS(playlistId);
+    }
+    
+    // Fetch playlist videos with continuation support
+    async function fetchPlaylistFromPage(playlistId, proxyUrl) {
+        const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
+        
+        const response = await fetch(proxyUrl + encodeURIComponent(playlistUrl));
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const htmlText = await response.text();
+        console.log('Playlist page loaded, length:', htmlText.length);
+        
+        // Extract all video IDs using multiple methods
+        const videoIds = [];
+        const seenIds = new Set();
+        
+        // Method 1: Extract from ytInitialData
+        const ytDataMatch = htmlText.match(/var ytInitialData = ({.+?});/);
+        if (ytDataMatch) {
+            try {
+                const ytData = JSON.parse(ytDataMatch[1]);
+                const extractedIds = extractVideosFromYtData(ytData);
+                extractedIds.forEach(id => {
+                    if (!seenIds.has(id)) {
+                        seenIds.add(id);
+                        videoIds.push(id);
+                    }
+                });
+                console.log(`Method 1 (ytInitialData): Found ${extractedIds.length} videos`);
+            } catch (e) {
+                console.error('Failed to parse ytInitialData:', e);
+            }
+        }
+        
+        // Method 2: Extract using enhanced regex patterns
+        const patterns = [
+            /"videoId":"([a-zA-Z0-9_-]{11})"/g,
+            /"watchEndpoint":{"videoId":"([a-zA-Z0-9_-]{11})"/g,
+            /\/watch\?v=([a-zA-Z0-9_-]{11})/g,
+            /"url":"\/watch\?v=([a-zA-Z0-9_-]{11})/g,
+            /data-video-id="([a-zA-Z0-9_-]{11})"/g
+        ];
+        
+        patterns.forEach((pattern, index) => {
+            let match;
+            let patternCount = 0;
+            const regex = new RegExp(pattern.source, pattern.flags);
+            
+            while ((match = regex.exec(htmlText)) !== null) {
+                const videoId = match[1];
+                if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
+                    seenIds.add(videoId);
+                    videoIds.push(videoId);
+                    patternCount++;
+                }
+            }
+            
+            if (patternCount > 0) {
+                console.log(`Method 2.${index + 1} (regex): Found ${patternCount} new videos`);
+            }
+        });
+        
+        // Extract and use continuation tokens to fetch more videos
+        const continuationPatterns = [
+            /"continuations":\[{"nextContinuationData":{"continuation":"([^"]+)"/,
+            /"continuation":"([^"]+)"/,
+            /"nextContinuationData":{"continuation":"([^"]+)"/,
+            /"continuationCommand":{"token":"([^"]+)"/
+        ];
+        
+        let continuationToken = null;
+        for (const pattern of continuationPatterns) {
+            const match = htmlText.match(pattern);
+            if (match) {
+                continuationToken = match[1];
+                console.log(`Found continuation token: ${continuationToken.substring(0, 50)}...`);
+                break;
+            }
+        }
+        
+        // Keep fetching more videos until no new ones are found
+        let round = 0;
+        let lastCount = videoIds.length;
+        
+        while (round < 20) { // Max 20 rounds to prevent infinite loops
+            round++;
+            console.log(`Fetch round ${round}: Starting with ${videoIds.length} videos`);
+            
+            try {
+                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, round);
+                let newCount = 0;
+                
+                moreVideos.forEach(id => {
+                    if (!seenIds.has(id)) {
+                        seenIds.add(id);
+                        videoIds.push(id);
+                        newCount++;
+                    }
+                });
+                
+                console.log(`Round ${round}: Found ${newCount} new videos (total: ${videoIds.length})`);
+                
+                // Stop if no new videos found in this round
+                if (newCount === 0) {
+                    console.log(`No new videos found in round ${round}, stopping`);
+                    break;
+                }
+                
+                // Also stop if we haven't made progress in 3 rounds
+                if (videoIds.length === lastCount) {
+                    console.log('No progress made, stopping fetch rounds');
+                    break;
+                }
+                
+                lastCount = videoIds.length;
+                
+            } catch (error) {
+                console.error(`Fetch round ${round} failed:`, error);
+                break;
+            }
+        }
+        
+        console.log(`Total videos extracted: ${videoIds.length}`);
+        return videoIds;
+    }
+    
+    // Fetch more videos using only the effective Pattern 4 approach
+    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round) {
+        const allVideos = [];
+        const seenIds = new Set();
+        
+        // Use only the effective watch URL pattern with different indices
+        const url = `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 100}`;
+        console.log(`Trying watch URL with index ${round * 100}`);
+        
+        try {
+            const response = await fetch(proxyUrl + encodeURIComponent(url));
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const content = await response.text();
+            
+            // Extract video IDs using the same patterns
+            const patterns = [
+                /"videoId":"([a-zA-Z0-9_-]{11})"/g,
+                /"watchEndpoint":{"videoId":"([a-zA-Z0-9_-]{11})"/g,
+                /\/watch\?v=([a-zA-Z0-9_-]{11})/g
+            ];
+            
+            let foundNew = 0;
+            patterns.forEach(pattern => {
+                let match;
+                while ((match = pattern.exec(content)) !== null) {
+                    const videoId = match[1];
+                    if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
+                        seenIds.add(videoId);
+                        allVideos.push(videoId);
+                        foundNew++;
+                    }
+                }
+            });
+            
+            console.log(`Found ${foundNew} new videos with index ${round * 100}`);
+            
+        } catch (error) {
+            console.error(`Watch URL failed:`, error);
+        }
+        
+        return allVideos;
+    }
+    
+    // Extract video IDs from YouTube's initial data object
+    function extractVideosFromYtData(ytData) {
+        const videoIds = [];
+        
+        function traverse(obj, depth = 0) {
+            if (depth > 15 || typeof obj !== 'object' || obj === null) return;
+            
+            // Look for video ID in various object structures
+            if (obj.videoId && typeof obj.videoId === 'string' && obj.videoId.length === 11) {
+                videoIds.push(obj.videoId);
+            }
+            
+            // Look for playlist video renderer
+            if (obj.playlistVideoRenderer && obj.playlistVideoRenderer.videoId) {
+                videoIds.push(obj.playlistVideoRenderer.videoId);
+            }
+            
+            // Look for compact video renderer
+            if (obj.compactVideoRenderer && obj.compactVideoRenderer.videoId) {
+                videoIds.push(obj.compactVideoRenderer.videoId);
+            }
+            
+            // Traverse nested objects and arrays
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    traverse(obj[key], depth + 1);
                 }
             }
         }
+        
+        traverse(ytData);
+        
+        // Also look for continuation tokens in ytData
+        function findContinuation(obj, depth = 0) {
+            if (depth > 10 || typeof obj !== 'object' || obj === null) return;
+            
+            if (obj.continuation && typeof obj.continuation === 'string') {
+                console.log(`Found continuation in ytData: ${obj.continuation.substring(0, 50)}...`);
+            }
+            
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    findContinuation(obj[key], depth + 1);
+                }
+            }
+        }
+        
+        findContinuation(ytData);
+        return [...new Set(videoIds)]; // Remove duplicates
     }
+    
+
     
     // Fallback RSS method (returns only 15 videos)
     async function fetchPlaylistVideosRSS(playlistId) {
