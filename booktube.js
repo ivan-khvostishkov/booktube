@@ -676,6 +676,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (params.position === 'shuffle' && videoIds.length > 1) {
             currentPlaylist = shuffleArray(videoIds);
             isShuffledPlaylist = true;
+            console.log('Playlist shuffled:', currentPlaylist.length, 'videos');
+            console.log('Shuffled order:', currentPlaylist);
         } else {
             currentPlaylist = videoIds;
             isShuffledPlaylist = false;
