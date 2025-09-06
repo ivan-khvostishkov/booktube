@@ -404,9 +404,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Update URL with parameters
-    function updateURL(params, includeEdit = false) {
+    async function updateURL(params, includeEdit = false) {
         const url = new URL(window.location);
-        url.searchParams.set('v', params.videoId);
+        
+        // Extract video IDs to get clean IDs for URL
+        const videoIds = await extractVideoIds(params.videoId);
+        const cleanVideoParam = videoIds.length > 0 ? 
+            (videoIds.length === 1 ? videoIds[0] : videoIds.join(' ')) : 
+            params.videoId;
+        
+        url.searchParams.set('v', cleanVideoParam);
         url.searchParams.set('sleep', params.sleepTimer);
         url.searchParams.set('loop', params.loop);
         url.searchParams.set('pos', params.position);
@@ -645,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentVideoIndex = 0;
 
         // Update URL (remove edit mode when playing)
-        updateURL(params, false);
+        await updateURL(params, false);
 
         // Set sleep timer
         if (params.sleepTimer !== '0') {
@@ -723,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Back to main handler (edit mode)
-    backToMain.addEventListener('click', () => {
+    backToMain.addEventListener('click', async () => {
         console.log('Back to main clicked - entering edit mode');
 
         // Clear intervals and timeouts
@@ -764,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
             position: positionSelect.value,
             title: titleInput.value.trim()
         };
-        updateURL(currentParams, true);
+        await updateURL(currentParams, true);
     });
 
     // Help modal handlers
