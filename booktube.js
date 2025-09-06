@@ -191,13 +191,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Log initial extraction results
         console.log(`Initial extraction complete: ${videoIds.length} videos found`);
         
-        // Fetch additional pages with rate limiting
-        console.log('Fetching additional pages with rate limiting...');
-        try {
-            for (let i = 1; i <= 5; i++) { // Reduced to 5 sequential requests
-                await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay between requests
-                
-                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i);
+        // Quick additional fetch (only if we have very few videos)
+        if (videoIds.length < 20) {
+            console.log('Small result set, trying one additional fetch...');
+            try {
+                await new Promise(resolve => setTimeout(resolve, 200)); // Shorter delay
+                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, 1);
                 let newCount = 0;
                 moreVideos.forEach(id => {
                     if (!seenIds.has(id)) {
@@ -208,17 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (newCount > 0) {
-                    console.log(`Sequential batch ${i}: Found ${newCount} new videos, total: ${videoIds.length}`);
-                } else {
-                    console.log(`No new videos found in batch ${i}, stopping`);
-                    break; // Stop if no new videos found
+                    console.log(`Additional fetch: Found ${newCount} new videos, total: ${videoIds.length}`);
                 }
+            } catch (error) {
+                console.error('Additional fetch failed:', error);
             }
-            
-            console.log(`Sequential fetch complete: ${videoIds.length} total videos`);
-            
-        } catch (error) {
-            console.error('Sequential fetch failed:', error);
         }
         
         console.log(`Total videos extracted: ${videoIds.length}`);
@@ -231,59 +224,51 @@ document.addEventListener('DOMContentLoaded', function() {
         return videoIds;
     }
     
-    // Fetch more videos with retry logic
-    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, retries = 3) {
+    // Fetch more videos with single optimized request
+    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, retries = 2) {
         const allVideos = [];
         const seenIds = new Set();
         
-        // Use different URL patterns to get more coverage
-        const urls = [
-            `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 100}`,
-            `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 50}`,
-            `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 200}`
-        ];
+        // Use single most effective URL pattern
+        const url = `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 100}`;
         
-        for (const url of urls) {
-            for (let attempt = 0; attempt < retries; attempt++) {
-                try {
-                    const response = await fetch(proxyUrl + encodeURIComponent(url));
-                    
-                    if (response.status === 429) {
-                        // Rate limited, wait longer
-                        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-                        console.log(`Rate limited, waiting ${delay}ms before retry...`);
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    
-                    if (!response.ok) break; // Try next URL
-                    
-                    const content = await response.text();
-                    
-                    // Extract video IDs using the same patterns
-                    const patterns = [
-                        /"videoId":"([a-zA-Z0-9_-]{11})"/g,
-                        /"watchEndpoint":{"videoId":"([a-zA-Z0-9_-]{11})"/g,
-                        /\/watch\?v=([a-zA-Z0-9_-]{11})/g
-                    ];
-                    
-                    patterns.forEach(pattern => {
-                        let match;
-                        while ((match = pattern.exec(content)) !== null) {
-                            const videoId = match[1];
-                            if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
-                                seenIds.add(videoId);
-                                allVideos.push(videoId);
-                            }
+        for (let attempt = 0; attempt < retries; attempt++) {
+            try {
+                const response = await fetch(proxyUrl + encodeURIComponent(url));
+                
+                if (response.status === 429) {
+                    const delay = 1000 * (attempt + 1); // Linear backoff
+                    console.log(`Rate limited, waiting ${delay}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+                
+                if (!response.ok) break;
+                
+                const content = await response.text();
+                
+                // Extract video IDs using most effective patterns
+                const patterns = [
+                    /"videoId":"([a-zA-Z0-9_-]{11})"/g,
+                    /\/watch\?v=([a-zA-Z0-9_-]{11})/g
+                ];
+                
+                patterns.forEach(pattern => {
+                    let match;
+                    while ((match = pattern.exec(content)) !== null) {
+                        const videoId = match[1];
+                        if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
+                            seenIds.add(videoId);
+                            allVideos.push(videoId);
                         }
-                    });
-                    
-                    break; // Success, move to next URL
-                    
-                } catch (error) {
-                    if (attempt === retries - 1) {
-                        console.log(`Failed to fetch after ${retries} attempts:`, error.message);
                     }
+                });
+                
+                break; // Success
+                
+            } catch (error) {
+                if (attempt === retries - 1) {
+                    console.log(`Failed to fetch after ${retries} attempts:`, error.message);
                 }
             }
         }
