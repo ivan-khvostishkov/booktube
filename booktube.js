@@ -463,14 +463,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return videoIds.join('_');
     }
 
-    // Shuffle array using Fisher-Yates algorithm
-    function shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
+    // Get random video index (true random, not shuffled)
+    function getRandomVideoIndex(arrayLength, excludeIndex = -1) {
+        if (arrayLength <= 1) return 0;
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * arrayLength);
+        } while (randomIndex === excludeIndex && arrayLength > 1);
+        return randomIndex;
     }
 
     // Format time for display
@@ -631,28 +631,27 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Handle playlist progression
             if (currentPlaylist.length > 1) {
-                currentVideoIndex++;
-                if (currentVideoIndex >= currentPlaylist.length) {
-                    if (params.loop) {
-                        currentVideoIndex = 0;
-                        const nextVideoId = currentPlaylist[currentVideoIndex];
-                        // For shuffled playlists, start from saved position
-                        if (isShuffledPlaylist) {
-                            const savedTime = getSavedPosition(nextVideoId);
-                            player.loadVideoById(nextVideoId, savedTime);
+                if (isShuffledPlaylist) {
+                    // True random: pick any video (including current one)
+                    currentVideoIndex = getRandomVideoIndex(currentPlaylist.length);
+                } else {
+                    // Sequential: go to next video
+                    currentVideoIndex++;
+                    if (currentVideoIndex >= currentPlaylist.length) {
+                        if (params.loop) {
+                            currentVideoIndex = 0;
                         } else {
-                            player.loadVideoById(nextVideoId);
+                            return; // End of playlist
                         }
                     }
+                }
+                
+                const nextVideoId = currentPlaylist[currentVideoIndex];
+                if (isShuffledPlaylist) {
+                    const savedTime = getSavedPosition(nextVideoId);
+                    player.loadVideoById(nextVideoId, savedTime);
                 } else {
-                    const nextVideoId = currentPlaylist[currentVideoIndex];
-                    // For shuffled playlists, start from saved position
-                    if (isShuffledPlaylist) {
-                        const savedTime = getSavedPosition(nextVideoId);
-                        player.loadVideoById(nextVideoId, savedTime);
-                    } else {
-                        player.loadVideoById(nextVideoId);
-                    }
+                    player.loadVideoById(nextVideoId);
                 }
             } else if (params.loop) {
                 player.seekTo(0);
@@ -678,15 +677,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Now show the player screen after playlist is loaded
         window.showPlayerScreen();
         
-        // Handle shuffle mode
-        if (params.position === 'shuffle' && videoIds.length > 1) {
-            currentPlaylist = shuffleArray(videoIds);
-            isShuffledPlaylist = true;
-            console.log('Playlist shuffled:', currentPlaylist.length, 'videos');
-            console.log('Shuffled order:', currentPlaylist);
-        } else {
-            currentPlaylist = videoIds;
-            isShuffledPlaylist = false;
+        // Set up playlist (no pre-shuffling for random mode)
+        currentPlaylist = videoIds;
+        isShuffledPlaylist = params.position === 'shuffle';
+        if (isShuffledPlaylist) {
+            console.log('Random mode enabled for', currentPlaylist.length, 'videos');
         }
         currentVideoIndex = 0;
 
@@ -729,10 +724,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 startSeconds = getSavedPosition(actualVideoId);
             }
         } else if (params.position === 'shuffle') {
-            // For shuffle mode, start each video from its saved position
-            startSeconds = getSavedPosition(actualVideoId);
+            // For shuffle mode, pick random video and start from saved position
+            currentVideoIndex = getRandomVideoIndex(currentPlaylist.length);
+            startSeconds = getSavedPosition(currentPlaylist[currentVideoIndex]);
         } else if (params.position === 'random' && currentPlaylist.length > 1) {
-            currentVideoIndex = Math.floor(Math.random() * currentPlaylist.length);
+            currentVideoIndex = getRandomVideoIndex(currentPlaylist.length);
         }
 
         // Create player after screen transition
