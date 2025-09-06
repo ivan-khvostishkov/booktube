@@ -196,9 +196,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Fetching additional pages with rate limiting...');
         try {
             for (let i = 1; i <= 2; i++) {
+                console.log(`Starting batch ${i} - waiting 250ms before request...`);
                 await new Promise(resolve => setTimeout(resolve, 250)); // in ms, delay between requests
                 
+                console.log(`Batch ${i}: Calling fetchMorePlaylistVideos...`);
                 const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i);
+                console.log(`Batch ${i}: Received ${moreVideos.length} videos from fetchMorePlaylistVideos`);
+                
                 let newCount = 0;
                 moreVideos.forEach(id => {
                     if (!seenIds.has(id)) {
@@ -214,6 +218,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`No new videos found in batch ${i}, stopping`);
                     break; // Stop if no new videos found
                 }
+                
+                console.log(`Batch ${i} completed successfully`);
             }
             
             console.log(`Sequential fetch complete: ${videoIds.length} total videos`);
@@ -234,32 +240,47 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fetch more videos with retry logic
     async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, retries = 3) {
+        console.log(`fetchMorePlaylistVideos called: round=${round}, retries=${retries}`);
         const allVideos = [];
         const seenIds = new Set();
         
         // Use different URL patterns to get more coverage
         const urls = [
             `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 100}`,
-            `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 50}`,
-            `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 200}`
+            //`https://www.youtube.com/playlist?list=${playlistId}&index=${round * 50}`,
+            //`https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 200}`
         ];
         
-        for (const url of urls) {
+        console.log(`Trying ${urls.length} different URL patterns...`);
+        
+        for (let urlIndex = 0; urlIndex < urls.length; urlIndex++) {
+            const url = urls[urlIndex];
+            console.log(`URL ${urlIndex + 1}/${urls.length}: Attempting to fetch...`);
+            
             for (let attempt = 0; attempt < retries; attempt++) {
+                console.log(`  Attempt ${attempt + 1}/${retries} for URL ${urlIndex + 1}`);
                 try {
+                    console.log(`  Making fetch request...`);
                     const response = await fetch(proxyUrl + encodeURIComponent(url));
+                    console.log(`  Response received: status=${response.status}`);
                     
                     if (response.status === 429) {
                         // Rate limited, wait longer
                         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-                        console.log(`Rate limited, waiting ${delay}ms before retry...`);
+                        console.log(`  Rate limited, waiting ${delay}ms before retry...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
+                        console.log(`  Wait completed, continuing to next attempt`);
                         continue;
                     }
                     
-                    if (!response.ok) break; // Try next URL
+                    if (!response.ok) {
+                        console.log(`  Response not OK (${response.status}), trying next URL`);
+                        break; // Try next URL
+                    }
                     
+                    console.log(`  Reading response text...`);
                     const content = await response.text();
+                    console.log(`  Content received, length: ${content.length}`);
                     
                     // Extract video IDs using the same patterns
                     const patterns = [
@@ -268,27 +289,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         /\/watch\?v=([a-zA-Z0-9_-]{11})/g
                     ];
                     
-                    patterns.forEach(pattern => {
+                    console.log(`  Extracting video IDs using ${patterns.length} patterns...`);
+                    patterns.forEach((pattern, patternIndex) => {
                         let match;
+                        let patternMatches = 0;
                         while ((match = pattern.exec(content)) !== null) {
                             const videoId = match[1];
                             if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
                                 seenIds.add(videoId);
                                 allVideos.push(videoId);
+                                patternMatches++;
                             }
+                        }
+                        if (patternMatches > 0) {
+                            console.log(`    Pattern ${patternIndex + 1}: Found ${patternMatches} new videos`);
                         }
                     });
                     
+                    console.log(`  URL ${urlIndex + 1} completed successfully, found ${allVideos.length} total videos so far`);
                     break; // Success, move to next URL
                     
                 } catch (error) {
+                    console.log(`  Attempt ${attempt + 1} failed:`, error.message);
                     if (attempt === retries - 1) {
-                        console.log(`Failed to fetch after ${retries} attempts:`, error.message);
+                        console.log(`  All ${retries} attempts failed for URL ${urlIndex + 1}`);
                     }
                 }
             }
         }
         
+        console.log(`fetchMorePlaylistVideos completed: returning ${allVideos.length} videos`);
         return allVideos;
     }
     
