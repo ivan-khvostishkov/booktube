@@ -16,6 +16,7 @@ https://booktube.nosocial.net
 - 🔖 **Bookmarkable URLs** - Save and share your playback settings
 - 📝 **Custom Titles** - Set personalized titles for your audiobooks
 - 📋 **Playlist Support** - Play YouTube playlists or multiple videos in sequence
+- 🔀 **Playlist Shuffling** - Randomize the order of videos in playlists
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
@@ -50,12 +51,13 @@ See more in [BookTube Selected Books](Books.md).
 BookTube supports URL parameters for bookmarking and sharing:
 
 ```
-?v=VIDEO_ID_OR_PLAYLIST&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&edit=true/false
+?v=VIDEO_ID_OR_PLAYLIST&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&shuffle=true/false&edit=true/false
 ```
 
 Examples:
 - Auto-play with custom title (30-minute timer): `?v=dQw4w9WgXcQ&title=My%20Audiobook&sleep=30`
 - YouTube playlist: `?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&loop=true`
+- Shuffled playlist: `?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&shuffle=true&loop=true`
 - Multiple videos: `?v=dQw4w9WgXcQ abc123def xyz789ghi&loop=true`
 - Loop from saved position: `?v=dQw4w9WgXcQ&loop=true&pos=saved`
 - Open in edit mode: `?v=dQw4w9WgXcQ&sleep=60&edit=true`
