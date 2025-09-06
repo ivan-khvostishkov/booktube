@@ -195,8 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fetch additional pages with rate limiting
         console.log('Fetching additional pages with rate limiting...');
         try {
-            for (let i = 1; i <= 8; i++) { // Reduced to 8 sequential requests
-                await new Promise(resolve => setTimeout(resolve, 250)); // 500ms delay between requests
+            for (let i = 1; i <= 2; i++) {
+                await new Promise(resolve => setTimeout(resolve, 250)); // in ms, delay between requests
                 
                 const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i);
                 let newCount = 0;
