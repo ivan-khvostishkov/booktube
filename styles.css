@@ -322,6 +322,27 @@ input[type="checkbox"] {
     text-decoration: underline;
 }
 
+.reset-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+.reset-button:hover {
+    background: #c82333;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     header {

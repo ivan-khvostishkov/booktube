@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sleepTimerOverlay = document.getElementById('sleepTimerOverlay');
     const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
     const titleInput = document.getElementById('titleInput');
+    const resetAppButton = document.getElementById('resetAppButton');
 
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
@@ -785,6 +786,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('click', (e) => {
         if (e.target === helpModal) {
+            helpModal.style.display = 'none';
+        }
+    });
+
+    // Reset app data handler
+    resetAppButton.addEventListener('click', () => {
+        if (confirm('This will delete all saved playback positions and app data. Are you sure?')) {
+            // Clear all localStorage items that start with 'booktube_'
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('booktube_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            alert('App data has been reset successfully!');
             helpModal.style.display = 'none';
         }
     });
