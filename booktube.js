@@ -75,10 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return results;
     }
     
-    // Multiple proxy services for fallback
+    // Multiple proxy services for fallback with rate limiting awareness
     const proxyServices = [
         'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?'
+        'https://corsproxy.io/?',
+        'https://cors-anywhere.herokuapp.com/'
     ];
 
     // Show/hide loading indicator
@@ -108,6 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 console.error(`Proxy ${i + 1} failed:`, error);
+                // Add delay before trying next proxy to avoid rate limiting
+                if (i < proxyServices.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
         }
         
@@ -121,6 +126,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
         
         const response = await fetch(proxyUrl + encodeURIComponent(playlistUrl));
+        
+        if (response.status === 429) {
+            throw new Error('Rate limited - too many requests');
+        }
+        
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         const htmlText = await response.text();
@@ -176,36 +186,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Extract and use continuation tokens to fetch more videos
-        const continuationPatterns = [
-            /"continuations":\[{"nextContinuationData":{"continuation":"([^"]+)"/,
-            /"continuation":"([^"]+)"/,
-            /"nextContinuationData":{"continuation":"([^"]+)"/,
-            /"continuationCommand":{"token":"([^"]+)"/
-        ];
+        // Log initial extraction results
+        console.log(`Initial extraction complete: ${videoIds.length} videos found`);
         
-        let continuationToken = null;
-        for (const pattern of continuationPatterns) {
-            const match = htmlText.match(pattern);
-            if (match) {
-                continuationToken = match[1];
-                console.log(`Found continuation token: ${continuationToken.substring(0, 50)}...`);
-                break;
-            }
-        }
-        
-        // Keep fetching more videos until no new ones are found
-        let round = 0;
-        let lastCount = videoIds.length;
-        
-        while (round < 20) { // Max 20 rounds to prevent infinite loops
-            round++;
-            console.log(`Fetch round ${round}: Starting with ${videoIds.length} videos`);
-            
-            try {
-                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, round);
-                let newCount = 0;
+        // Fetch additional pages with rate limiting
+        console.log('Fetching additional pages with rate limiting...');
+        try {
+            for (let i = 1; i <= 5; i++) { // Reduced to 5 sequential requests
+                await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay between requests
                 
+                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i);
+                let newCount = 0;
                 moreVideos.forEach(id => {
                     if (!seenIds.has(id)) {
                         seenIds.add(id);
@@ -214,71 +205,85 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                console.log(`Round ${round}: Found ${newCount} new videos (total: ${videoIds.length})`);
-                
-                // Stop if no new videos found in this round
-                if (newCount === 0) {
-                    console.log(`No new videos found in round ${round}, stopping`);
-                    break;
+                if (newCount > 0) {
+                    console.log(`Sequential batch ${i}: Found ${newCount} new videos`);
+                } else {
+                    console.log(`No new videos found in batch ${i}, stopping`);
+                    break; // Stop if no new videos found
                 }
-                
-                // Also stop if we haven't made progress in 3 rounds
-                if (videoIds.length === lastCount) {
-                    console.log('No progress made, stopping fetch rounds');
-                    break;
-                }
-                
-                lastCount = videoIds.length;
-                
-            } catch (error) {
-                console.error(`Fetch round ${round} failed:`, error);
-                break;
             }
+            
+            console.log(`Sequential fetch complete: ${videoIds.length} total videos`);
+            
+        } catch (error) {
+            console.error('Sequential fetch failed:', error);
         }
         
         console.log(`Total videos extracted: ${videoIds.length}`);
+        
+        // If we have very few videos, this might be a large playlist that needs more fetching
+        if (videoIds.length < 50) {
+            console.log('Small result set, playlist might be larger than initially extracted');
+        }
+        
         return videoIds;
     }
     
-    // Fetch more videos using only the effective Pattern 4 approach
-    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round) {
+    // Fetch more videos with retry logic
+    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, retries = 3) {
         const allVideos = [];
         const seenIds = new Set();
         
-        // Use only the effective watch URL pattern with different indices
-        const url = `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 100}`;
-        console.log(`Trying watch URL with index ${round * 100}`);
+        // Use different URL patterns to get more coverage
+        const urls = [
+            `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 100}`,
+            `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 50}`,
+            `https://www.youtube.com/watch?v=${playlistId.replace('PL', '')}&list=${playlistId}&index=${round * 200}`
+        ];
         
-        try {
-            const response = await fetch(proxyUrl + encodeURIComponent(url));
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
-            const content = await response.text();
-            
-            // Extract video IDs using the same patterns
-            const patterns = [
-                /"videoId":"([a-zA-Z0-9_-]{11})"/g,
-                /"watchEndpoint":{"videoId":"([a-zA-Z0-9_-]{11})"/g,
-                /\/watch\?v=([a-zA-Z0-9_-]{11})/g
-            ];
-            
-            let foundNew = 0;
-            patterns.forEach(pattern => {
-                let match;
-                while ((match = pattern.exec(content)) !== null) {
-                    const videoId = match[1];
-                    if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
-                        seenIds.add(videoId);
-                        allVideos.push(videoId);
-                        foundNew++;
+        for (const url of urls) {
+            for (let attempt = 0; attempt < retries; attempt++) {
+                try {
+                    const response = await fetch(proxyUrl + encodeURIComponent(url));
+                    
+                    if (response.status === 429) {
+                        // Rate limited, wait longer
+                        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+                        console.log(`Rate limited, waiting ${delay}ms before retry...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    
+                    if (!response.ok) break; // Try next URL
+                    
+                    const content = await response.text();
+                    
+                    // Extract video IDs using the same patterns
+                    const patterns = [
+                        /"videoId":"([a-zA-Z0-9_-]{11})"/g,
+                        /"watchEndpoint":{"videoId":"([a-zA-Z0-9_-]{11})"/g,
+                        /\/watch\?v=([a-zA-Z0-9_-]{11})/g
+                    ];
+                    
+                    patterns.forEach(pattern => {
+                        let match;
+                        while ((match = pattern.exec(content)) !== null) {
+                            const videoId = match[1];
+                            if (videoId && videoId.length === 11 && !seenIds.has(videoId)) {
+                                seenIds.add(videoId);
+                                allVideos.push(videoId);
+                            }
+                        }
+                    });
+                    
+                    break; // Success, move to next URL
+                    
+                } catch (error) {
+                    if (attempt === retries - 1) {
+                        console.log(`Failed to fetch after ${retries} attempts:`, error.message);
                     }
                 }
-            });
-            
-            console.log(`Found ${foundNew} new videos with index ${round * 100}`);
-            
-        } catch (error) {
-            console.error(`Watch URL failed:`, error);
+            }
         }
         
         return allVideos;
@@ -347,6 +352,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             try {
                 const response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+                
+                if (response.status === 429) {
+                    console.log('RSS rate limited, waiting before retry...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    continue;
+                }
+                
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const xmlText = await response.text();
@@ -367,7 +379,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return videoIds;
             } catch (error) {
                 console.error(`RSS proxy ${i + 1} failed:`, error);
-                if (i === proxyServices.length - 1) {
+                if (i < proxyServices.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } else {
                     hideLoading();
                     throw new Error('All methods failed');
                 }
