@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fetch additional pages with rate limiting
         console.log('Fetching additional pages with rate limiting...');
         try {
-            for (let i = 1; i <= 2; i++) {
+            for (let i = 1; i <= 20; i++) {
                 console.log(`Starting batch ${i} - waiting 250ms before request...`);
                 await new Promise(resolve => setTimeout(resolve, 250)); // in ms, delay between requests
                 
