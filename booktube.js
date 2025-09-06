@@ -91,108 +91,52 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loadingIndicator').classList.remove('active');
     }
 
-    // Fetch all video IDs from YouTube playlist with pagination
+    // Fetch all video IDs from YouTube playlist by scraping playlist page
     async function fetchPlaylistVideos(playlistId) {
         console.log('Fetching playlist videos for ID:', playlistId);
         showLoading();
         
-        const videoIds = [];
-        const seenIds = new Set();
-        let continuationToken = null;
-        let pageCount = 0;
-        const maxPages = 50; // Safety limit
+        const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
         
-        try {
-            // First, get initial page
-            const initialUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
-            let htmlText = await fetchWithProxy(initialUrl);
-            
-            // Extract initial videos and continuation token
-            extractVideoIds(htmlText, videoIds, seenIds);
-            continuationToken = extractContinuationToken(htmlText);
-            pageCount++;
-            
-            console.log(`Page ${pageCount}: ${videoIds.length} videos, continuation: ${continuationToken ? 'yes' : 'no'}`);
-            
-            // Continue fetching pages if there's a continuation token
-            while (continuationToken && pageCount < maxPages) {
-                const continueUrl = `https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8`;
-                const postData = {
-                    context: {
-                        client: {
-                            clientName: "WEB",
-                            clientVersion: "2.20231201.01.00"
-                        }
-                    },
-                    continuation: continuationToken
-                };
-                
-                const response = await fetch(continueUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(postData)
-                });
-                
-                if (!response.ok) break;
-                
-                const jsonData = await response.json();
-                const jsonText = JSON.stringify(jsonData);
-                
-                const prevCount = videoIds.length;
-                extractVideoIds(jsonText, videoIds, seenIds);
-                continuationToken = extractContinuationToken(jsonText);
-                pageCount++;
-                
-                console.log(`Page ${pageCount}: +${videoIds.length - prevCount} videos (total: ${videoIds.length}), continuation: ${continuationToken ? 'yes' : 'no'}`);
-                
-                if (videoIds.length === prevCount) break; // No new videos found
-            }
-            
-            console.log(`Final result: ${videoIds.length} unique video IDs from ${pageCount} pages`);
-            hideLoading();
-            return videoIds;
-            
-        } catch (error) {
-            console.error('Playlist fetching failed:', error);
-            hideLoading();
-            return await fetchPlaylistVideosRSS(playlistId);
-        }
-    }
-    
-    // Helper function to fetch with proxy fallback
-    async function fetchWithProxy(url) {
         for (let i = 0; i < proxyServices.length; i++) {
+            const proxyUrl = proxyServices[i];
+            console.log(`Trying proxy ${i + 1}/${proxyServices.length}:`, proxyUrl);
+            
             try {
-                const response = await fetch(proxyServices[i] + encodeURIComponent(url));
+                const response = await fetch(proxyUrl + encodeURIComponent(playlistUrl));
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.text();
+                
+                const htmlText = await response.text();
+                console.log('Playlist page loaded, length:', htmlText.length);
+                
+                // Extract video IDs using regex from the HTML
+                const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
+                const videoIds = [];
+                const seenIds = new Set();
+                
+                let match;
+                while ((match = videoIdRegex.exec(htmlText)) !== null) {
+                    const videoId = match[1];
+                    if (!seenIds.has(videoId)) {
+                        seenIds.add(videoId);
+                        videoIds.push(videoId);
+                    }
+                }
+                
+                console.log(`Extracted ${videoIds.length} unique video IDs from playlist`);
+                hideLoading();
+                return videoIds;
+                
             } catch (error) {
-                if (i === proxyServices.length - 1) throw error;
+                console.error(`Proxy ${i + 1} failed:`, error);
+                if (i === proxyServices.length - 1) {
+                    console.log('All proxies failed, falling back to RSS');
+                    return await fetchPlaylistVideosRSS(playlistId);
+                }
             }
         }
     }
     
-    // Extract video IDs from HTML/JSON text
-    function extractVideoIds(text, videoIds, seenIds) {
-        const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
-        let match;
-        while ((match = videoIdRegex.exec(text)) !== null) {
-            const videoId = match[1];
-            if (!seenIds.has(videoId)) {
-                seenIds.add(videoId);
-                videoIds.push(videoId);
-            }
-        }
-    }
-    
-    // Extract continuation token for next page
-    function extractContinuationToken(text) {
-        const tokenRegex = /"continuation":"([^"]+)"/;
-        const match = text.match(tokenRegex);
-        return match ? match[1] : null;
-    }
     // Fallback RSS method (returns only 15 videos)
     async function fetchPlaylistVideosRSS(playlistId) {
         const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
