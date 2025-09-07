@@ -246,8 +246,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Use different URL patterns to get more coverage
         const urls = [
-            `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 50 + 1}`,
-            `https://www.youtube.com/playlist?list=${playlistId}&index=${round * 100 + 1}`
+            `https://www.youtube.com/watch?list=${playlistId}&index=${round * 50 + 1}`,
+            `https://www.youtube.com/watch?list=${playlistId}&index=${round * 100 + 1}`
         ];
         
         console.log(`Trying ${urls.length} different URL patterns...`);
