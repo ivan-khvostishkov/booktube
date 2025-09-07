@@ -1,8 +1,7 @@
-### BookTube Selected Books
+## BookTube Selected Books
 
 * [Summa Technologiae by Stanisław Lem (in Russian)](https://booktube.nosocial.net/?v=NSfkgr5TTYM+yPnhdK9touU+YjvTqHfFqEc&sleep=20&loop=false&pos=saved&title=%D0%A1%D1%83%D0%BC%D0%BC%D0%B0+%D1%82%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D0%B8.+%D0%A1%D1%82%D0%B0%D0%BD%D0%B8%D1%81%D0%BB%D0%B0%D0%B2+%D0%9B%D0%B5%D0%BC&edit=true) - Сумма технологии. Станислав Лем
 * [I see a man sitting in a chair, and the chair is biting his leg by Robert Sheckley (in Russian)](https://booktube.nosocial.net/?v=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DcX2NGSzCtbk&sleep=20&loop=false&pos=saved&title=%D0%AF+%D0%B2%D0%B8%D0%B6%D1%83%3A+%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA+%D1%81%D0%B8%D0%B4%D0%B8%D1%82+%D0%BD%D0%B0+%D1%81%D1%82%D1%83%D0%BB%D0%B5+%D0%B8+%D1%81%D1%82%D1%83%D0%BB+%D0%BA%D1%83%D1%81%D0%B0%D0%B5%D1%82+%D0%B5%D0%B3%D0%BE+%D0%B7%D0%B0+%D0%BD%D0%BE%D0%B3%D1%83.+%D0%A0%D0%BE%D0%B1%D0%B5%D1%80%D1%82+%D0%A8%D0%B5%D0%BA%D0%BB%D0%B8&edit=true) - Я вижу: человек сидит на стуле и стул кусает его за ногу. Роберт Шекли
-* ["Model for Assembly" radio program (in Russian)](https://booktube.nosocial.net/?v=PLb-JKoHS0AMAJ1gApOJOxuZoLsGZPLWqc&sleep=30&loop=false&pos=shuffle&title=%22%D0%9C%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C+%D0%B4%D0%BB%D1%8F+%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B8%22.+%D0%A0%D0%B0%D0%B4%D0%B8%D0%BE%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B0&edit=true) - "Модель для сборки". Радиопрограмма
 * [Histories by Herodotus (in Russian)](https://booktube.nosocial.net/?v=PLQ7iliSaUiA_KHmGhRd4HpuuPM37UGSE_&sleep=20&loop=false&pos=saved&title=%D0%98%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%8F.+%D0%93%D0%B5%D1%80%D0%BE%D0%B4%D0%BE%D1%82&edit=true) - История. Геродот
 * [Tao Te Ching by Laozi (in Russian)](https://booktube.nosocial.net/?v=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DgKg0W5Un0PI&sleep=20&loop=false&pos=saved&title=%D0%94%D0%B0%D0%BE+%D0%B4%D1%8D+%D1%86%D0%B7%D0%B8%D0%BD.+%D0%9B%D0%B0%D0%BE-%D1%86%D0%B7%D1%8B&edit=true) - Дао дэ цзин. Лао-цзы
 * [Махабхарата (in Russian)](https://booktube.nosocial.net/?v=PLjPg58THfX_yQrAgXoShepHoDLtOVeKWh&sleep=20&loop=false&pos=saved&title=%D0%9C%D0%B0%D1%85%D0%B0%D0%B1%D1%85%D0%B0%D1%80%D0%B0%D1%82%D0%B0&edit=true)
@@ -14,6 +13,13 @@
 * [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=20&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
 * [The Master and Margarita by Mikhail Bulgakov](https://booktube.nosocial.net/?v=PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC&sleep=20&loop=false&pos=saved&title=The+Master+and+Margarita+by+Mikhail+Bulgakov&edit=true)
 * [One Hundred Years of Solitude by Gabriel García Márquez](https://booktube.nosocial.net/?v=HeyRm9WubQ0+6OpKJYYvooE&sleep=20&loop=false&pos=saved&title=One+Hundred+Years+of+Solitude.+Gabriel+García+Márquez&edit=true)
-* [Тысяча и одна ночь. Сказки](https://booktube.nosocial.net/?v=PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr&sleep=30&loop=false&pos=shuffle&title=%D0%A2%D1%8B%D1%81%D1%8F%D1%87%D0%B0+%D0%B8+%D0%BE%D0%B4%D0%BD%D0%B0+%D0%BD%D0%BE%D1%87%D1%8C.+%D0%A1%D0%BA%D0%B0%D0%B7%D0%BA%D0%B8&edit=true)
 * [Наши за границей. Николай Лейкин (Gennady Anatolievich)](https://booktube.nosocial.net/?v=-H3IjANl0V4+BR0k8I8i28U&sleep=30&loop=false&pos=saved&title=%D0%9D%D0%B0%D1%88%D0%B8+%D0%B7%D0%B0+%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B5%D0%B9.+%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B9+%D0%9B%D0%B5%D0%B9%D0%BA%D0%B8%D0%BD+%28Gennady+Anatolievich%29&edit=true)
+
+### Random
+
+* [Тысяча и одна ночь. Сказки](https://booktube.nosocial.net/?v=PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr&sleep=30&loop=false&pos=random&title=%D0%A2%D1%8B%D1%81%D1%8F%D1%87%D0%B0+%D0%B8+%D0%BE%D0%B4%D0%BD%D0%B0+%D0%BD%D0%BE%D1%87%D1%8C.+%D0%A1%D0%BA%D0%B0%D0%B7%D0%BA%D0%B8)
+
+### Shuffle playlist
+
+* ["Model for Assembly" radio program (in Russian)](https://booktube.nosocial.net/?v=PLb-JKoHS0AMAJ1gApOJOxuZoLsGZPLWqc&sleep=30&loop=false&pos=shuffle&title=%22%D0%9C%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C+%D0%B4%D0%BB%D1%8F+%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B8%22.+%D0%A0%D0%B0%D0%B4%D0%B8%D0%BE%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B0&edit=true) - "Модель для сборки". Радиопрограмма
 * [Сборник аудиокниг (Gennady Anatolievich)](https://booktube.nosocial.net/?v=PLTMnNOWf9hrpvVf_1JksytDPOmjh0JJpE&sleep=30&loop=false&pos=shuffle&title=%D0%A1%D0%B1%D0%BE%D1%80%D0%BD%D0%B8%D0%BA+%D0%B0%D1%83%D0%B4%D0%B8%D0%BE%D0%BA%D0%BD%D0%B8%D0%B3+%28Gennady+Anatolievich%29&edit=true)
