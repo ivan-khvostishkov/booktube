@@ -16,10 +16,10 @@
 
 ### Random
 
-* [The Stories of Mahabharata](https://booktube.nosocial.net/?v=PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs&sleep=20&loop=false&pos=shuffle&title=The+Stories+of+Mahabharata&edit=true)
 * [Тысяча и одна ночь. Сказки](https://booktube.nosocial.net/?v=PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr&sleep=30&loop=false&pos=random&title=%D0%A2%D1%8B%D1%81%D1%8F%D1%87%D0%B0+%D0%B8+%D0%BE%D0%B4%D0%BD%D0%B0+%D0%BD%D0%BE%D1%87%D1%8C.+%D0%A1%D0%BA%D0%B0%D0%B7%D0%BA%D0%B8)
 
 ### Shuffle playlist
 
+* [The Stories of Mahabharata](https://booktube.nosocial.net/?v=PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs&sleep=20&loop=false&pos=shuffle&title=The+Stories+of+Mahabharata&edit=true)
 * ["Model for Assembly" radio program (in Russian)](https://booktube.nosocial.net/?v=PLb-JKoHS0AMAJ1gApOJOxuZoLsGZPLWqc&sleep=30&loop=false&pos=shuffle&title=%22%D0%9C%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C+%D0%B4%D0%BB%D1%8F+%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B8%22.+%D0%A0%D0%B0%D0%B4%D0%B8%D0%BE%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B0&edit=true) - "Модель для сборки". Радиопрограмма
 * [Сборник аудиокниг (Gennady Anatolievich)](https://booktube.nosocial.net/?v=PLTMnNOWf9hrpvVf_1JksytDPOmjh0JJpE&sleep=30&loop=false&pos=shuffle&title=%D0%A1%D0%B1%D0%BE%D1%80%D0%BD%D0%B8%D0%BA+%D0%B0%D1%83%D0%B4%D0%B8%D0%BE%D0%BA%D0%BD%D0%B8%D0%B3+%28Gennady+Anatolievich%29&edit=true)
