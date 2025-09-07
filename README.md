@@ -43,7 +43,7 @@ See more in [BookTube Selected Books](Books.md).
 4. Select your desired settings:
     - **Sleep Timer**: Choose when to automatically pause playback
     - **Loop**: Enable to replay the video indefinitely
-    - **Position**: Start from beginning, last saved position, or random
+    - **Position**: Start from beginning (no position saving), last saved position (default), or random (no position saving)
 5. Click the Play button
 
 ### URL Parameters
@@ -53,6 +53,8 @@ BookTube supports URL parameters for bookmarking and sharing:
 ```
 ?v=VIDEO_ID_OR_PLAYLIST&title=CUSTOM_TITLE&sleep=MINUTES&loop=true/false&pos=beginning/saved/random&shuffle=true/false&edit=true/false
 ```
+
+**Note**: Position defaults to 'saved'. Use 'beginning' or 'random' for no position saving.
 
 Examples:
 - Auto-play with custom title (30-minute timer): `?v=dQw4w9WgXcQ&title=My%20Audiobook&sleep=30`

@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
             videoId: videoParam ? videoParam.replace(/\+/g, ' ') : null,
             sleepTimer: params.get('sleep') || '0',
             loop: params.get('loop') === 'true',
-            position: params.get('pos') || 'beginning',
+            position: params.get('pos') || 'saved',
             edit: params.get('edit') === 'true',
             title: params.get('title') || ''
         };
@@ -664,8 +664,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Player ready');
         event.target.playVideo();
 
-        // Start position saving if not random
-        if (params.position !== 'random') {
+        // Start position saving if not random or beginning
+        if (params.position !== 'random' && params.position !== 'beginning') {
             positionSaveInterval = setInterval(() => {
                 if (player && player.getCurrentTime) {
                     const currentTime = player.getCurrentTime();
