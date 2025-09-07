@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await new Promise(resolve => setTimeout(resolve, 250)); // in ms, delay between requests
                 
                 console.log(`Batch ${i}: Calling fetchMorePlaylistVideos...`);
-                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i);
+                const moreVideos = await fetchMorePlaylistVideos(playlistId, proxyUrl, i, videoIds);
                 console.log(`Batch ${i}: Received ${moreVideos.length} videos from fetchMorePlaylistVideos`);
                 
                 let newCount = 0;
@@ -239,27 +239,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Fetch more videos with retry logic
-    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, retries = 3) {
+    async function fetchMorePlaylistVideos(playlistId, proxyUrl, round, knownVideoIds, retries = 3) {
         console.log(`fetchMorePlaylistVideos called: round=${round}, retries=${retries}`);
         const allVideos = [];
         const seenIds = new Set();
         
         // Use different URL patterns to get more coverage
-        const urls = [
-            `https://www.youtube.com/watch?list=${playlistId}&index=${round * 50 + 1}`,
-            `https://www.youtube.com/watch?list=${playlistId}&index=${round * 100 + 1}`
-        ];
+        const urls = [];
+        
+        // Create URLs with proper video IDs for the corresponding indices
+        const indices = [round * 50 + 1, round * 100 + 1];
+        indices.forEach(index => {
+            const videoId = knownVideoIds && knownVideoIds[index - 1]; // index is 1-based, array is 0-based
+            if (videoId) {
+                const url = `https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${index}`;
+                urls.push(url);
+                console.log(`Created URL for index ${index}: ${url}`);
+            } else {
+                console.log(`No video ID available for index ${index}`);
+            }
+        });
         
         console.log(`Trying ${urls.length} different URL patterns...`);
         
         for (let urlIndex = 0; urlIndex < urls.length; urlIndex++) {
             const url = urls[urlIndex];
-            console.log(`URL ${urlIndex + 1}/${urls.length}: Attempting to fetch...`);
+            console.log(`URL ${urlIndex + 1}/${urls.length}: Attempting to fetch: ${url}`);
             
             for (let attempt = 0; attempt < retries; attempt++) {
                 console.log(`  Attempt ${attempt + 1}/${retries} for URL ${urlIndex + 1}`);
                 try {
-                    console.log(`  Making fetch request...`);
+                    console.log(`  Making fetch request to: ${proxyUrl + encodeURIComponent(url)}`);
                     const response = await fetch(proxyUrl + encodeURIComponent(url));
                     console.log(`  Response received: status=${response.status}`);
                     
