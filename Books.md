@@ -7,7 +7,6 @@
 * [Махабхарата (in Russian)](https://booktube.nosocial.net/?v=PLjPg58THfX_yQrAgXoShepHoDLtOVeKWh&sleep=20&loop=false&pos=saved&title=%D0%9C%D0%B0%D1%85%D0%B0%D0%B1%D1%85%D0%B0%D1%80%D0%B0%D1%82%D0%B0&edit=true)
 * [Колыбель для кошки. Курт Воннегут (in Russian)](https://booktube.nosocial.net/?v=ZQwrt4R4XDw&sleep=20&loop=false&pos=saved&title=%D0%9A%D0%BE%D0%BB%D1%8B%D0%B1%D0%B5%D0%BB%D1%8C+%D0%B4%D0%BB%D1%8F+%D0%BA%D0%BE%D1%88%D0%BA%D0%B8.+%D0%9A%D1%83%D1%80%D1%82+%D0%92%D0%BE%D0%BD%D0%BD%D0%B5%D0%B3%D1%83%D1%82&edit=true)
 * [The Bhagavad Gita, The Lord's Song](https://booktube.nosocial.net/?v=IIEJNUO1BoQ&sleep=15&loop=false&pos=saved&title=The+Bhagavad+Gita%2C+The+Lord%27s+Song&edit=true)
-* [The Stories of Mahabharata](https://booktube.nosocial.net/?v=PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs&sleep=20&loop=false&pos=saved&title=The+Stories+of+Mahabharata&edit=true)
 * [Siddhartha by Hermann Hesse](https://booktube.nosocial.net/?v=vS4ble0Uznk&sleep=20&loop=false&pos=saved&title=Siddhartha+By+Hermann+Hesse&edit=true)
 * [The Glass Bead Game by Hermann Hesse (in German)](https://booktube.nosocial.net/?v=PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm&sleep=20&loop=false&pos=saved&title=Das+Glasperlenspiel+von+Hermann+Hesse&edit=true) - Das Glasperlenspiel von Hermann Hesse
 * [The Epic Of Gilgamesh](https://booktube.nosocial.net/?v=X35eeaG9W98&sleep=20&loop=false&pos=saved&title=The+Epic+Of+Gilgamesh&edit=true)
@@ -17,6 +16,7 @@
 
 ### Random
 
+* [The Stories of Mahabharata](https://booktube.nosocial.net/?v=PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs&sleep=20&loop=false&pos=shuffle&title=The+Stories+of+Mahabharata&edit=true)
 * [Тысяча и одна ночь. Сказки](https://booktube.nosocial.net/?v=PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr&sleep=30&loop=false&pos=random&title=%D0%A2%D1%8B%D1%81%D1%8F%D1%87%D0%B0+%D0%B8+%D0%BE%D0%B4%D0%BD%D0%B0+%D0%BD%D0%BE%D1%87%D1%8C.+%D0%A1%D0%BA%D0%B0%D0%B7%D0%BA%D0%B8)
 
 ### Shuffle playlist
