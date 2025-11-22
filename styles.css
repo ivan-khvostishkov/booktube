@@ -91,7 +91,7 @@ h1 {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    margin-top: -70px;
+    margin-top: -120px;
 }
 
 form {
@@ -165,6 +165,7 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    margin-top: 15px;
 }
 
 .play-button:hover {
