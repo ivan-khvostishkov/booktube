@@ -120,12 +120,14 @@
         <p><a href="https://github.com/ivan-khvostishkov/booktube">BookTube on GitHub</a></p>
         <p>For support & questions:</p>
         <p><a href="mailto:booktube@nosocial.net">booktube@nosocial.net</a></p>
-        <button id="exportButton" class="export-button">
-            <i class="fas fa-download"></i> Export Settings
-        </button>
-        <button id="importButton" class="import-button">
-            <i class="fas fa-upload"></i> Import Settings
-        </button>
+        <div class="settings-buttons">
+            <button id="exportButton" class="settings-button">
+                <i class="fas fa-download"></i> Export App Data
+            </button>
+            <button id="importButton" class="settings-button">
+                <i class="fas fa-upload"></i> Import App Data
+            </button>
+        </div>
         <input type="file" id="importFile" accept=".json" style="display: none;">
         <button id="resetAppButton" class="reset-button">
             <i class="fas fa-trash-alt"></i> Reset App Data

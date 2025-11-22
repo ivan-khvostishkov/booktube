@@ -1051,7 +1051,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Export settings handler
-    exportButton.addEventListener('click', () => {
+    exportButton.addEventListener('click', (e) => {
+        e.preventDefault();
         const data = {};
         Object.keys(localStorage).forEach(key => {
             if (key.startsWith('booktube_')) {
@@ -1068,7 +1069,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Import settings handler
-    importButton.addEventListener('click', () => {
+    importButton.addEventListener('click', (e) => {
+        e.preventDefault();
         importFile.click();
     });
 
