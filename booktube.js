@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const videoIds = await fetchPlaylistFromPage(playlistId, proxyUrl);
                 if (videoIds.length > 0) {
                     console.log(`Extracted ${videoIds.length} video IDs from playlist`);
-                    hideLoading();
                     return videoIds;
                 }
             } catch (error) {
@@ -147,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log('All methods failed, falling back to RSS');
-        hideLoading();
         return await fetchPlaylistVideosRSS(playlistId);
     }
     
@@ -444,14 +442,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 console.log('RSS fallback extracted video IDs:', videoIds.length);
-                hideLoading();
                 return videoIds;
             } catch (error) {
                 console.error(`RSS proxy ${i + 1} failed:`, error);
                 if (i < proxyServices.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 } else {
-                    hideLoading();
                     throw new Error('All methods failed');
                 }
             }
@@ -610,6 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         playerScreen.classList.remove('active');
         mainScreen.style.display = 'flex';
         mainScreen.classList.add('active');
+        hideLoading();
     }
 
     // Update page title
