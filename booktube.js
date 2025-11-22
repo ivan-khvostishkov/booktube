@@ -35,9 +35,103 @@ document.addEventListener('DOMContentLoaded', function() {
     const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
     const titleInput = document.getElementById('titleInput');
     const resetAppButton = document.getElementById('resetAppButton');
+    const favoritesIcon = document.getElementById('favoritesIcon');
+    const favoritesModal = document.getElementById('favoritesModal');
+    const closeFavorites = document.getElementById('closeFavorites');
+    const favoritesList = document.getElementById('favoritesList');
+    const saveToFavoritesCheckbox = document.getElementById('saveToFavorites');
 
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
+
+    // Default favorites list
+    const defaultFavorites = [
+        { v: 'NSfkgr5TTYM+yPnhdK9touU+YjvTqHfFqEc', sleep: '20', loop: false, pos: 'saved', title: 'Сумма технологии. Станислав Лем' },
+        { v: 'zHtvJj5bgoo', sleep: '45', loop: false, pos: 'saved', title: 'The Aeneid by Virgil' },
+        { v: 'PLQ7iliSaUiA_KHmGhRd4HpuuPM37UGSE_', sleep: '20', loop: false, pos: 'saved', title: 'История. Геродот' },
+        { v: 'gKg0W5Un0PI', sleep: '20', loop: false, pos: 'saved', title: 'Дао дэ цзин. Лао-цзы' },
+        { v: 'PLjPg58THfX_yQrAgXoShepHoDLtOVeKWh', sleep: '20', loop: false, pos: 'saved', title: 'Махабхарата' },
+        { v: 'ZQwrt4R4XDw', sleep: '20', loop: false, pos: 'saved', title: 'Колыбель для кошки. Курт Воннегут' },
+        { v: 'IIEJNUO1BoQ', sleep: '15', loop: false, pos: 'saved', title: 'The Bhagavad Gita, The Lord\'s Song' },
+        { v: 'vS4ble0Uznk', sleep: '20', loop: false, pos: 'saved', title: 'Siddhartha By Hermann Hesse' },
+        { v: 'PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm', sleep: '20', loop: false, pos: 'saved', title: 'Das Glasperlenspiel von Hermann Hesse' },
+        { v: 'X35eeaG9W98', sleep: '20', loop: false, pos: 'saved', title: 'The Epic Of Gilgamesh' },
+        { v: 'PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC', sleep: '20', loop: false, pos: 'saved', title: 'The Master and Margarita by Mikhail Bulgakov' },
+        { v: 'HeyRm9WubQ0+6OpKJYYvooE', sleep: '20', loop: false, pos: 'saved', title: 'One Hundred Years of Solitude. Gabriel García Márquez' },
+        { v: '-H3IjANl0V4+BR0k8I8i28U', sleep: '30', loop: false, pos: 'saved', title: 'Наши за границей. Николай Лейкин (Gennady Anatolievich)' },
+        { v: 'zmJjMlPcMfs+0dqnYl-9jDc', sleep: '20', loop: false, pos: 'saved', title: 'Дзэн и искусство ухода за мотоциклом. Роберт Пёрсиг' },
+        { v: 'PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr', sleep: '30', loop: false, pos: 'random', title: 'Тысяча и одна ночь. Сказки' },
+        { v: 'nwRoHC83wx0', sleep: '45', loop: true, pos: 'random', title: 'Gayatri Mantra – Rig Veda 3.62.10' },
+        { v: 'PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs', sleep: '20', loop: false, pos: 'shuffle', title: 'The Stories of Mahabharata' },
+        { v: 'PLb-JKoHS0AMAJ1gApOJOxuZoLsGZPLWqc', sleep: '30', loop: false, pos: 'shuffle', title: '"Модель для сборки". Радиопрограмма' },
+        { v: 'PLTMnNOWf9hrpvVf_1JksytDPOmjh0JJpE', sleep: '30', loop: false, pos: 'shuffle', title: 'Сборник аудиокниг (Gennady Anatolievich)' }
+    ];
+
+    // Favorites management
+    function getFavorites() {
+        const stored = localStorage.getItem('booktube_favorites');
+        return stored ? JSON.parse(stored) : defaultFavorites;
+    }
+
+    function saveFavorites(favorites) {
+        localStorage.setItem('booktube_favorites', JSON.stringify(favorites));
+    }
+
+    function addToFavorites(item) {
+        const favorites = getFavorites();
+        const exists = favorites.some(fav => fav.v === item.v && fav.title === item.title);
+        if (!exists) {
+            favorites.push(item);
+            saveFavorites(favorites);
+        }
+    }
+
+    function removeFromFavorites(index) {
+        const favorites = getFavorites();
+        favorites.splice(index, 1);
+        saveFavorites(favorites);
+        renderFavorites();
+    }
+
+    function resetFavorites() {
+        saveFavorites(defaultFavorites);
+        renderFavorites();
+    }
+
+    function renderFavorites() {
+        const favorites = getFavorites();
+        favoritesList.innerHTML = '';
+        
+        favorites.forEach((fav, index) => {
+            const item = document.createElement('div');
+            item.className = 'favorite-item';
+            
+            const info = document.createElement('div');
+            info.className = 'favorite-info';
+            info.innerHTML = `
+                <div class="favorite-title">${fav.title}</div>
+                <div class="favorite-details">${fav.sleep}min • ${fav.loop ? 'Loop' : 'No loop'} • ${fav.pos}</div>
+            `;
+            
+            const deleteBtn = document.createElement('i');
+            deleteBtn.className = 'fas fa-times favorite-delete';
+            deleteBtn.onclick = () => removeFromFavorites(index);
+            
+            info.onclick = () => {
+                videoInput.value = fav.v;
+                sleepTimerSelect.value = fav.sleep;
+                loopCheckbox.checked = fav.loop;
+                positionSelect.value = fav.pos;
+                titleInput.value = fav.title;
+                updatePageTitle(fav.title);
+                favoritesModal.style.display = 'none';
+            };
+            
+            item.appendChild(info);
+            item.appendChild(deleteBtn);
+            favoritesList.appendChild(item);
+        });
+    }
 
     // Extract video IDs from input (supports multiple IDs and playlist IDs)
     async function extractVideoIds(input) {
@@ -818,6 +912,17 @@ document.addEventListener('DOMContentLoaded', function() {
             title: titleInput.value.trim()
         };
 
+        // Save to favorites if checkbox is checked
+        if (saveToFavoritesCheckbox.checked) {
+            addToFavorites({
+                v: params.videoId,
+                sleep: params.sleepTimer,
+                loop: params.loop,
+                pos: params.position,
+                title: params.title || 'ID: ' + params.videoId
+            });
+        }
+
         window.startPlayer(params);
     });
 
@@ -866,6 +971,16 @@ document.addEventListener('DOMContentLoaded', function() {
         await updateURL(currentParams, true);
     });
 
+    // Favorites modal handlers
+    favoritesIcon.addEventListener('click', () => {
+        renderFavorites();
+        favoritesModal.style.display = 'block';
+    });
+
+    closeFavorites.addEventListener('click', () => {
+        favoritesModal.style.display = 'none';
+    });
+
     // Help modal handlers
     helpIcon.addEventListener('click', () => {
         helpModal.style.display = 'block';
@@ -879,11 +994,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === helpModal) {
             helpModal.style.display = 'none';
         }
+        if (e.target === favoritesModal) {
+            favoritesModal.style.display = 'none';
+        }
     });
 
     // Reset app data handler
     resetAppButton.addEventListener('click', () => {
-        if (confirm('This will delete all saved playback positions and app data. Are you sure?')) {
+        if (confirm('This will delete all saved playback positions and reset favorites to default. Are you sure?')) {
             // Clear all localStorage items that start with 'booktube_'
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
@@ -891,6 +1009,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem(key);
                 }
             });
+            resetFavorites();
             alert('App data has been reset successfully!');
             helpModal.style.display = 'none';
         }

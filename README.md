@@ -17,6 +17,7 @@ https://booktube.nosocial.net
 - 📝 **Custom Titles** - Set personalized titles for your audiobooks
 - 📋 **Playlist Support** - Play YouTube playlists or multiple videos in sequence
 - 🔀 **Playlist Shuffling** - Randomize the order of videos in playlists
+- ❤️ **Favorites List** - Save and manage your favorite audiobooks with quick access
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
@@ -44,7 +45,16 @@ See more in [BookTube Selected Books](Books.md).
     - **Sleep Timer**: Choose when to automatically pause playback
     - **Loop**: Enable to replay the video indefinitely
     - **Position**: Start from beginning (no position saving), last saved position (default), or random (no position saving)
+    - **Save to favorites**: Automatically enabled to save your configuration for quick access later
 5. Click the Play button
+
+### Favorites Management
+
+- **Access Favorites**: Click the heart icon (❤️) in the top-right corner to view your favorites list
+- **Quick Play**: Click any favorite item to instantly load its settings into the form
+- **Remove Items**: Click the × button next to any favorite to remove it from your list
+- **Auto-Save**: New audiobooks are automatically saved to favorites when the "Save to favorites" checkbox is checked (enabled by default)
+- **Reset**: Use the "Reset App Data" button in the help modal to restore the default favorites list
 
 ### URL Parameters
 
@@ -70,6 +80,7 @@ When playing a video, click the BookTube logo to return to the configuration scr
 - Modify settings before replaying
 - Share a pre-configured link that doesn't auto-play
 - Create bookmark collections with different settings
+- Save modified configurations to your favorites list
 
 ### Sleep Timer
 
@@ -100,17 +111,19 @@ Requires JavaScript and YouTube IFrame API access.
 ## Privacy
 
 BookTube is a client-side application that:
-- Stores playback positions locally in your browser
+- Stores playback positions and favorites locally in your browser
 - Doesn't collect or transmit any personal data
 - Only connects to YouTube for video playback
+- All favorites and settings remain on your device
 
 ## Technical Details
 
 - **No Backend Required**: Runs entirely in the browser
-- **Local Storage**: Saves playback positions per video
+- **Local Storage**: Saves playback positions per video and favorites list
 - **YouTube IFrame API**: Official YouTube player integration
 - **Responsive CSS**: Adapts to any screen size
 - **URL State Management**: All settings preserved in URL
+- **Favorites Management**: Persistent local storage with default curated collection
 
 ## Use Cases
 
