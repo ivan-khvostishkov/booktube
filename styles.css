@@ -337,21 +337,43 @@ input[type="checkbox"] {
     text-decoration: underline;
 }
 
+.export-button,
+.import-button,
 .reset-button {
-    background: #dc3545;
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.9rem;
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
     justify-content: center;
     width: 100%;
     transition: background 0.3s;
+}
+
+.export-button {
+    background: #28a745;
+}
+
+.export-button:hover {
+    background: #218838;
+}
+
+.import-button {
+    background: #007bff;
+}
+
+.import-button:hover {
+    background: #0056b3;
+}
+
+.reset-button {
+    background: #dc3545;
+    margin-top: 20px;
 }
 
 .reset-button:hover {

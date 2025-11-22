@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
     const titleInput = document.getElementById('titleInput');
     const resetAppButton = document.getElementById('resetAppButton');
+    const exportButton = document.getElementById('exportButton');
+    const importButton = document.getElementById('importButton');
+    const importFile = document.getElementById('importFile');
     const favoritesIcon = document.getElementById('favoritesIcon');
     const favoritesScreen = document.getElementById('favoritesScreen');
     const closeFavorites = document.getElementById('closeFavorites');
@@ -1045,6 +1048,52 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === helpModal) {
             helpModal.style.display = 'none';
         }
+    });
+
+    // Export settings handler
+    exportButton.addEventListener('click', () => {
+        const data = {};
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('booktube_')) {
+                data[key] = localStorage.getItem(key);
+            }
+        });
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `booktube-settings-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // Import settings handler
+    importButton.addEventListener('click', () => {
+        importFile.click();
+    });
+
+    importFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith('booktube_')) {
+                            localStorage.setItem(key, data[key]);
+                        }
+                    });
+                    renderFavorites();
+                    alert('Settings imported successfully!');
+                    helpModal.style.display = 'none';
+                } catch (error) {
+                    alert('Invalid file format. Please select a valid BookTube settings file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+        e.target.value = '';
     });
 
     // Reset app data handler
