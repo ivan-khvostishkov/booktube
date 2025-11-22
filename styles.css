@@ -15,12 +15,16 @@ body {
 .screen {
     width: 100vw;
     height: 100vh;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     display: none;
+    z-index: 1;
 }
 
 .screen.active {
     display: block !important;
+    z-index: 10;
 }
 
 /* Main Screen Styles */
@@ -71,7 +75,8 @@ h1 {
 }
 
 .favorites-icon,
-.help-icon {
+.help-icon,
+.close-icon {
     font-size: 1.5rem;
     cursor: pointer;
     color: #888;
@@ -81,7 +86,8 @@ h1 {
 }
 
 .favorites-icon:hover,
-.help-icon:hover {
+.help-icon:hover,
+.close-icon:hover {
     color: #ff6b6b;
 }
 
@@ -352,16 +358,47 @@ input[type="checkbox"] {
     background: #c82333;
 }
 
-/* Favorites Modal */
-.favorites-modal {
-    max-width: 600px;
-    max-height: 80vh;
+/* Favorites Screen */
+#favoritesScreen {
+    display: none;
+    flex-direction: column;
+    background: #1a1a1a;
+}
+
+#favoritesScreen.active {
+    display: flex !important;
+    z-index: 20;
+}
+
+.favorites-container {
+    flex: 1;
+    padding: 20px;
     overflow-y: auto;
 }
 
 .favorites-list {
-    text-align: left;
-    margin-top: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.close-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.3s;
+}
+
+.close-icon:hover {
+    color: #ff6b6b;
+}
+
+#backFromFavorites {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#backFromFavorites:hover {
+    color: #ff5252;
 }
 
 .favorite-item {

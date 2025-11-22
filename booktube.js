@@ -36,8 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const titleInput = document.getElementById('titleInput');
     const resetAppButton = document.getElementById('resetAppButton');
     const favoritesIcon = document.getElementById('favoritesIcon');
-    const favoritesModal = document.getElementById('favoritesModal');
+    const favoritesScreen = document.getElementById('favoritesScreen');
     const closeFavorites = document.getElementById('closeFavorites');
+    const backFromFavorites = document.getElementById('backFromFavorites');
     const favoritesList = document.getElementById('favoritesList');
     const saveToFavoritesCheckbox = document.getElementById('saveToFavorites');
 
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 positionSelect.value = fav.pos;
                 titleInput.value = fav.title;
                 updatePageTitle(fav.title);
-                favoritesModal.style.display = 'none';
+                showMainScreen();
             };
             
             item.appendChild(info);
@@ -696,11 +697,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Switch to main screen
     window.showMainScreen = function() {
         console.log('Switching to main screen');
-        playerScreen.style.display = 'none';
         playerScreen.classList.remove('active');
-        mainScreen.style.display = 'flex';
+        favoritesScreen.classList.remove('active');
         mainScreen.classList.add('active');
         hideLoading();
+    }
+
+    // Switch to favorites screen
+    function showFavoritesScreen() {
+        console.log('Switching to favorites screen');
+        console.log('favoritesScreen element:', favoritesScreen);
+        console.log('Before - favoritesScreen classes:', favoritesScreen.className);
+        mainScreen.classList.remove('active');
+        playerScreen.classList.remove('active');
+        favoritesScreen.classList.add('active');
+        console.log('After - favoritesScreen classes:', favoritesScreen.className);
+        console.log('favoritesScreen computed style:', window.getComputedStyle(favoritesScreen).display);
     }
 
     // Update page title
@@ -971,15 +983,28 @@ document.addEventListener('DOMContentLoaded', function() {
         await updateURL(currentParams, true);
     });
 
-    // Favorites modal handlers
-    favoritesIcon.addEventListener('click', () => {
-        renderFavorites();
-        favoritesModal.style.display = 'block';
-    });
+    // Favorites screen handlers
+    if (favoritesIcon) {
+        favoritesIcon.addEventListener('click', () => {
+            console.log('Favorites icon clicked');
+            renderFavorites();
+            showFavoritesScreen();
+        });
+    } else {
+        console.error('Favorites icon not found');
+    }
 
-    closeFavorites.addEventListener('click', () => {
-        favoritesModal.style.display = 'none';
-    });
+    if (closeFavorites) {
+        closeFavorites.addEventListener('click', () => {
+            showMainScreen();
+        });
+    }
+
+    if (backFromFavorites) {
+        backFromFavorites.addEventListener('click', () => {
+            showMainScreen();
+        });
+    }
 
     // Help modal handlers
     helpIcon.addEventListener('click', () => {
@@ -993,9 +1018,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('click', (e) => {
         if (e.target === helpModal) {
             helpModal.style.display = 'none';
-        }
-        if (e.target === favoritesModal) {
-            favoritesModal.style.display = 'none';
         }
     });
 
