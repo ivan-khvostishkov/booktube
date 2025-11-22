@@ -1,6 +1,6 @@
 # BookTube Release Notes
 
-## Version 1.3 - January 2025
+## Version 1.3 - November 2025
 
 ### ❤️ Major Features
 - **Favorites Management** - Save and manage your favorite audiobooks with quick access
