@@ -994,9 +994,9 @@ document.addEventListener('DOMContentLoaded', function() {
             sleepTimerInterval = null;
         }
 
-        // Clear sleep timer
+        // Clear sleep timer and hide overlay
         sleepTimerEndTime = null;
-        sleepTimerOverlay.classList.remove('active');
+        sleepTimerOverlay.classList.remove('active', 'warning');
 
         // Destroy player
         if (player && player.destroy) {
@@ -1006,6 +1006,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Clear the player div
         document.getElementById('youtubePlayer').innerHTML = '';
+
+        // Hide player screen properly
+        playerScreen.style.display = 'none';
 
         // Switch screens
         window.showMainScreen();
