@@ -34,6 +34,19 @@ Some sample audiobooks to start with:
 
 See more in [BookTube Selected Books](Books.md).
 
+## Use Cases
+
+- 📚 **Audiobooks**: Listening to full-length books on YouTube
+- 🎙️ **Podcasts**: Long podcast episodes with position memory
+- 📖 **Educational Content**: Lectures, courses, and tutorials
+- 🛌 **Sleep Stories**: Bedtime content with automatic shutoff
+- 🗣️ **Language Learning**: Perfect for learning foreign language phrases - see more at [Language Learning Tips](#language-learning-tips)
+    - Use random position to hear different phrases each session
+    - Set a 15-30 minute timer for daily practice
+    - Loop feature helps with repetition and memorization
+    - No specific order means uniform exposure to all material
+- 🚗 **Road Trips**: Entertainment for long drives (passenger use only!)
+
 ### Basic Playback
 
 0. Navigate to https://booktube.nosocial.net/
@@ -125,18 +138,7 @@ BookTube is a client-side application that:
 - **URL State Management**: All settings preserved in URL
 - **Favorites Management**: Persistent local storage with default curated collection
 
-## Use Cases
 
-- 📚 **Audiobooks**: Listening to full-length books on YouTube
-- 🎙️ **Podcasts**: Long podcast episodes with position memory
-- 📖 **Educational Content**: Lectures, courses, and tutorials
-- 🛌 **Sleep Stories**: Bedtime content with automatic shutoff
-- 🗣️ **Language Learning**: Perfect for learning foreign language phrases
-    - Use random position to hear different phrases each session
-    - Set a 15-30 minute timer for daily practice
-    - Loop feature helps with repetition and memorization
-    - No specific order means uniform exposure to all material
-- 🚗 **Road Trips**: Entertainment for long drives (passenger use only!)
 
 ## Language Learning Tips
 
