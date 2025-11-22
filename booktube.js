@@ -1050,6 +1050,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Escape key handler for closing modals and screens
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Close help modal if open
+            if (helpModal.style.display === 'block') {
+                helpModal.style.display = 'none';
+            }
+            // Close favorites screen if active
+            else if (favoritesScreen.classList.contains('active')) {
+                showMainScreen();
+            }
+        }
+    });
+
     // Export settings handler
     exportButton.addEventListener('click', (e) => {
         e.preventDefault();
