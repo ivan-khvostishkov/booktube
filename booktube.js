@@ -107,9 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Multiple proxy services for fallback with rate limiting awareness
     const proxyServices = [
-        'https://api.allorigins.win/raw?url=',
         'https://corsproxy.io/?',
-        'https://cors-anywhere.herokuapp.com/'
+        'https://cors-anywhere.herokuapp.com/',
+        'https://api.allorigins.win/raw?url=',
     ];
 
     // Show/hide loading indicator
