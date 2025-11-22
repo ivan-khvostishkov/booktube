@@ -1,5 +1,46 @@
 # BookTube Release Notes
 
+## Version 1.3 - January 2025
+
+### ❤️ Major Features
+- **Favorites Management** - Save and manage your favorite audiobooks with quick access
+- **Export/Import Data** - Backup and restore your favorites and app data as JSON files
+- **Auto-Save to Favorites** - New audiobooks automatically saved to favorites (enabled by default)
+- **Quick Play from Favorites** - One-click loading of saved configurations
+
+### 🔧 Improvements
+- **Favorites UI** - Heart icon (❤️) in top-right corner for easy access to favorites list
+- **Data Persistence** - Enhanced local storage for favorites and playback positions
+- **Default Favorites Collection** - Curated starter collection of quality audiobooks
+- **Favorites Management** - Remove items with × button, export/import functionality
+
+### 📚 Content & Documentation
+- **Favorites Management Section** - Comprehensive guide for using the new favorites system
+- **Enhanced Privacy Section** - Updated to reflect favorites storage and data handling
+- **Technical Details Updates** - Added favorites management and persistent storage information
+
+### 🐛 Bug Fixes
+- Improved local storage reliability for favorites and positions
+- Enhanced data export/import validation
+- Better error handling for favorites operations
+
+### 🎯 Technical Enhancements
+- Persistent favorites storage with JSON export/import
+- Enhanced local storage management
+- Improved data backup and restore functionality
+- Auto-save checkbox integration with favorites system
+
+### Key Features
+- Heart icon (❤️) for favorites access
+- "Save to favorites" checkbox (auto-enabled)
+- Export/Import App Data buttons in help modal
+- Reset App Data functionality
+- Quick play from favorites list
+
+---
+
+This release transforms BookTube into a personal audiobook library with persistent favorites management and data portability.
+
 ## Version 1.2 - September 2025
 
 ### 🎵 Major Features
