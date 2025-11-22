@@ -18,6 +18,7 @@ https://booktube.nosocial.net
 - 📋 **Playlist Support** - Play YouTube playlists or multiple videos in sequence
 - 🔀 **Playlist Shuffling** - Randomize the order of videos in playlists
 - ❤️ **Favorites List** - Save and manage your favorite audiobooks with quick access
+- 📤 **Export/Import** - Backup and restore your favorites and app data
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🌙 **Dark Theme** - Easy on the eyes for nighttime listening
 
@@ -67,6 +68,8 @@ See more in [BookTube Selected Books](Books.md).
 - **Quick Play**: Click any favorite item to instantly load its settings into the form
 - **Remove Items**: Click the × button next to any favorite to remove it from your list
 - **Auto-Save**: New audiobooks are automatically saved to favorites when the "Save to favorites" checkbox is checked (enabled by default)
+- **Export Data**: Use the "Export App Data" button in the help modal to download your favorites and playback positions as a JSON file
+- **Import Data**: Use the "Import App Data" button to restore favorites and positions from a previously exported JSON file
 - **Reset**: Use the "Reset App Data" button in the help modal to restore the default favorites list
 
 ### URL Parameters
