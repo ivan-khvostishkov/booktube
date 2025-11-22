@@ -546,10 +546,11 @@ input[type="checkbox"] {
     }
 
     .sleep-timer-overlay {
-        top: 80px;
+        top: 20px;
         right: 15px;
         font-size: 1rem;
         padding: 10px 15px;
+        white-space: nowrap;
     }
 
     #sleepTimerDisplay {
