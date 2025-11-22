@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             info.className = 'favorite-info';
             info.innerHTML = `
                 <div class="favorite-title">${fav.title}</div>
-                <div class="favorite-details">${fav.sleep}min • ${fav.loop ? 'Loop' : 'No loop'} • ${fav.pos}</div>
+                <div class="favorite-details">${fav.sleep === '0' ? 'No timer' : fav.sleep + ' min'} • ${fav.loop ? 'Loop' : 'No loop'} • ${fav.pos}</div>
             `;
             
             const deleteBtn = document.createElement('i');
