@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentYearSpan = document.getElementById('currentYear');
     const sleepTimerOverlay = document.getElementById('sleepTimerOverlay');
     const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
+    const timerResetSelect = document.getElementById('timerResetSelect');
     const titleInput = document.getElementById('titleInput');
     const resetAppButton = document.getElementById('resetAppButton');
     const exportButton = document.getElementById('exportButton');
@@ -1176,6 +1177,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Title input real-time update
     titleInput.addEventListener('input', () => {
         updatePageTitle(titleInput.value.trim());
+    });
+
+    // Sleep timer reset functionality
+    sleepTimerOverlay.addEventListener('click', (e) => {
+        if (e.target === timerResetSelect) return; // Don't toggle when clicking select
+        sleepTimerOverlay.classList.toggle('show-select');
+    });
+
+    timerResetSelect.addEventListener('change', (e) => {
+        const newMinutes = parseInt(e.target.value);
+        
+        // Clear existing timer
+        if (sleepTimerTimeout) {
+            clearTimeout(sleepTimerTimeout);
+        }
+        
+        // Set new timer
+        sleepTimerEndTime = Date.now() + (newMinutes * 60 * 1000);
+        
+        // Set new timeout
+        sleepTimerTimeout = setTimeout(() => {
+            if (player && player.pauseVideo) {
+                player.pauseVideo();
+            }
+            sleepTimerOverlay.classList.remove('active');
+            clearInterval(sleepTimerInterval);
+        }, newMinutes * 60 * 1000);
+        
+        // Hide select dropdown
+        sleepTimerOverlay.classList.remove('show-select');
+        
+        // Update display immediately
+        updateSleepTimerDisplay();
+    });
+
+    // Hide timer select when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!sleepTimerOverlay.contains(e.target)) {
+            sleepTimerOverlay.classList.remove('show-select');
+        }
     });
 
     // Initial load - check if we're in edit mode

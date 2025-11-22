@@ -250,6 +250,7 @@ input[type="checkbox"] {
     gap: 10px;
     font-size: 1.2rem;
     font-weight: 500;
+    cursor: pointer;
 }
 
 .sleep-timer-overlay.active {
@@ -265,6 +266,26 @@ input[type="checkbox"] {
     font-size: 1.3rem;
     font-weight: bold;
     letter-spacing: 0.05em;
+}
+
+.timer-reset-select {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.sleep-timer-overlay.show-select .timer-reset-select {
+    display: block;
 }
 
 .sleep-timer-overlay.warning {
