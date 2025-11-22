@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             const deleteBtn = document.createElement('i');
-            deleteBtn.className = 'fas fa-times favorite-delete';
+            deleteBtn.className = 'fas fa-trash favorite-delete';
             deleteBtn.onclick = () => removeFromFavorites(index);
             
             info.onclick = () => {
