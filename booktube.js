@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Default favorites list
     const defaultFavorites = [
-        { v: 'NSfkgr5TTYM+yPnhdK9touU+YjvTqHfFqEc', sleep: '20', loop: false, pos: 'saved', title: 'Сумма технологии. Станислав Лем' },
+        { v: 'NSfkgr5TTYM yPnhdK9touU YjvTqHfFqEc', sleep: '20', loop: false, pos: 'saved', title: 'Сумма технологии. Станислав Лем' },
         { v: 'zHtvJj5bgoo', sleep: '45', loop: false, pos: 'saved', title: 'The Aeneid by Virgil' },
         { v: 'PLQ7iliSaUiA_KHmGhRd4HpuuPM37UGSE_', sleep: '20', loop: false, pos: 'saved', title: 'История. Геродот' },
         { v: 'gKg0W5Un0PI', sleep: '20', loop: false, pos: 'saved', title: 'Дао дэ цзин. Лао-цзы' },
@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
         { v: 'PLe7ZwSHgdjYJdfNOkOrHznkN2yyT5eJpm', sleep: '20', loop: false, pos: 'saved', title: 'Das Glasperlenspiel von Hermann Hesse' },
         { v: 'X35eeaG9W98', sleep: '20', loop: false, pos: 'saved', title: 'The Epic Of Gilgamesh' },
         { v: 'PL-lY2fdb59Of61NGdOmXUagd0f1B_RUXC', sleep: '20', loop: false, pos: 'saved', title: 'The Master and Margarita by Mikhail Bulgakov' },
-        { v: 'HeyRm9WubQ0+6OpKJYYvooE', sleep: '20', loop: false, pos: 'saved', title: 'One Hundred Years of Solitude. Gabriel García Márquez' },
-        { v: '-H3IjANl0V4+BR0k8I8i28U', sleep: '30', loop: false, pos: 'saved', title: 'Наши за границей. Николай Лейкин (Gennady Anatolievich)' },
-        { v: 'zmJjMlPcMfs+0dqnYl-9jDc', sleep: '20', loop: false, pos: 'saved', title: 'Дзэн и искусство ухода за мотоциклом. Роберт Пёрсиг' },
+        { v: 'HeyRm9WubQ0 6OpKJYYvooE', sleep: '20', loop: false, pos: 'saved', title: 'One Hundred Years of Solitude. Gabriel García Márquez' },
+        { v: '-H3IjANl0V4 BR0k8I8i28U', sleep: '30', loop: false, pos: 'saved', title: 'Наши за границей. Николай Лейкин (Gennady Anatolievich)' },
+        { v: 'zmJjMlPcMfs 0dqnYl-9jDc', sleep: '20', loop: false, pos: 'saved', title: 'Дзэн и искусство ухода за мотоциклом. Роберт Пёрсиг' },
         { v: 'PL5E0m9KbufwZlALCgXRHyoE99VeORMmzr', sleep: '30', loop: false, pos: 'random', title: 'Тысяча и одна ночь. Сказки' },
         { v: 'nwRoHC83wx0', sleep: '45', loop: true, pos: 'random', title: 'Gayatri Mantra – Rig Veda 3.62.10' },
         { v: 'PLAQ6vzFKj_1uqRv3OCX-Elexz9C8vfENs', sleep: '20', loop: false, pos: 'shuffle', title: 'The Stories of Mahabharata' },
@@ -118,13 +118,25 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteBtn.className = 'fas fa-trash favorite-delete';
             deleteBtn.onclick = () => removeFromFavorites(index);
             
-            info.onclick = () => {
-                videoInput.value = fav.v;
+            info.onclick = async () => {
+                // Convert + back to spaces for the form input
+                videoInput.value = fav.v.replace(/\+/g, ' ');
                 sleepTimerSelect.value = fav.sleep;
                 loopCheckbox.checked = fav.loop;
                 positionSelect.value = fav.pos;
                 titleInput.value = fav.title;
                 updatePageTitle(fav.title);
+                
+                // Update URL with the selected favorite's parameters
+                const params = {
+                    videoId: fav.v.replace(/\+/g, ' '),
+                    sleepTimer: fav.sleep,
+                    loop: fav.loop,
+                    position: fav.pos,
+                    title: fav.title
+                };
+                await updateURL(params, true);
+                
                 showMainScreen();
             };
             
@@ -175,29 +187,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Convert URLs to video IDs for URL parameter
     function convertToVideoIds(input) {
-        const ids = input.trim().split(/\s+/);
+        console.log('convertToVideoIds input:', input);
+        // Split by both spaces and + signs
+        const ids = input.trim().split(/[\s+]+/);
+        console.log('convertToVideoIds split ids:', ids);
         const videoRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
         const playlistRegex = /(?:youtube\.com\/.*[?&]list=|youtube\.com\/playlist\?list=)([a-zA-Z0-9_-]+)/;
         
         const results = [];
         
         for (const id of ids) {
+            console.log('Processing id:', id, 'length:', id.length);
             // Check if it's a playlist ID or URL
             const playlistMatch = id.match(playlistRegex);
             if (playlistMatch || (id.length > 11 && id.startsWith('PL'))) {
                 const playlistId = playlistMatch ? playlistMatch[1] : id;
+                console.log('Found playlist:', playlistId);
                 results.push(playlistId);
             } else {
                 // Handle single video ID or URL
                 const videoMatch = id.match(videoRegex);
-                const videoId = videoMatch ? videoMatch[1] : id;
-                if (videoId.length === 11) {
-                    results.push(videoId);
+                if (videoMatch) {
+                    console.log('Found video from URL:', videoMatch[1]);
+                    results.push(videoMatch[1]);
+                } else if (id.length === 11) {
+                    // It's already a video ID
+                    console.log('Found video ID:', id);
+                    results.push(id);
+                } else {
+                    console.log('Skipping invalid ID:', id);
                 }
             }
         }
         
-        return results.join(' ');
+        console.log('convertToVideoIds results:', results);
+        const result = results.join(' ');
+        console.log('convertToVideoIds final result:', result);
+        return result;
     }
     
     // Multiple proxy services for fallback with rate limiting awareness
