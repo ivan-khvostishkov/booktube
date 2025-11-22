@@ -736,7 +736,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Switch to main screen
     window.showMainScreen = function() {
         console.log('Switching to main screen');
+        
+        // Stop player when switching to main screen
+        if (player) {
+            try {
+                if (player.stopVideo) player.stopVideo();
+                // Give time for video to stop before destroying
+                setTimeout(() => {
+                    if (player && player.destroy) player.destroy();
+                    player = null;
+                    // Clear player div after stopping
+                    const playerDiv = document.getElementById('youtubePlayer');
+                    if (playerDiv) {
+                        playerDiv.innerHTML = '';
+                    }
+                }, 100);
+            } catch (e) {
+                player = null;
+            }
+        }
+        
         playerScreen.classList.remove('active');
+        playerScreen.style.display = 'none';
         favoritesScreen.classList.remove('active');
         mainScreen.classList.add('active');
         hideLoading();
@@ -999,20 +1020,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sleepTimerEndTime = null;
         sleepTimerOverlay.classList.remove('active', 'warning');
 
-        // Destroy player
-        if (player && player.destroy) {
-            player.destroy();
-            player = null;
-        }
-
-        // Clear the player div
-        document.getElementById('youtubePlayer').innerHTML = '';
-
-        // Hide player screen properly
-        playerScreen.style.display = 'none';
-
-        // Switch screens
-        window.showMainScreen();
+        // Player will be stopped in showMainScreen()
 
         // Update URL to include edit mode with current form values
         const currentParams = {
@@ -1023,6 +1031,14 @@ document.addEventListener('DOMContentLoaded', function() {
             title: titleInput.value.trim()
         };
         await updateURL(currentParams, true);
+
+        // Switch screens
+        window.showMainScreen();
+        
+        // Double-check player is cleared after screen switch
+        setTimeout(() => {
+            document.getElementById('youtubePlayer').innerHTML = '';
+        }, 50);
     });
 
     // Favorites screen handlers
