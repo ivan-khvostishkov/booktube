@@ -376,6 +376,24 @@ input[type="checkbox"] {
     overflow-y: auto;
 }
 
+/* Custom scrollbar for favorites */
+.favorites-container::-webkit-scrollbar {
+    width: 16px;
+}
+
+.favorites-container::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+.favorites-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+.favorites-container::-webkit-scrollbar-thumb:hover {
+    background: #ff6b6b;
+}
+
 .favorites-list {
     max-width: 800px;
     margin: 0 auto;
