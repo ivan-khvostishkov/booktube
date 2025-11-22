@@ -48,6 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set current year
     currentYearSpan.textContent = new Date().getFullYear();
 
+    // Video input info tooltip
+    const videoInputInfo = document.getElementById('videoInputInfo');
+    videoInputInfo.addEventListener('click', () => {
+        alert('Supports video IDs, URLs, playlist IDs (PLxxx), space-separated');
+    });
+
     // Default favorites list
     const defaultFavorites = [
         { v: 'NSfkgr5TTYM yPnhdK9touU YjvTqHfFqEc', sleep: '20', loop: false, pos: 'saved', title: 'Сумма технологии. Станислав Лем' },
@@ -238,7 +244,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show/hide loading indicator
     function showLoading() {
-        document.getElementById('loadingIndicator').classList.add('active');
+        const indicator = document.getElementById('loadingIndicator');
+        indicator.classList.add('active');
+        // Force reflow to restart animation
+        indicator.offsetHeight;
     }
 
     function hideLoading() {
