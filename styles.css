@@ -70,7 +70,7 @@ h1 {
 
 .header-icons {
     display: flex;
-    gap: 15px;
+    gap: 25px;
     align-items: center;
 }
 
@@ -533,7 +533,7 @@ input[type="checkbox"] {
     }
 
     .header-icons {
-        gap: 10px;
+        gap: 20px;
     }
 
     .favorites-icon,
