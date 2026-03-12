@@ -93,11 +93,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function addToFavorites(item) {
         const userFavorites = JSON.parse(localStorage.getItem('booktube_favorites') || '[]');
         const allFavorites = [...userFavorites, ...defaultFavorites];
-        const exists = allFavorites.some(fav => fav.v === item.v && fav.title === item.title);
-        if (!exists) {
-            userFavorites.unshift(item); // Add to beginning of user favorites
-            saveFavorites(userFavorites);
+        
+        // Check if item already exists in user favorites
+        const userIndex = userFavorites.findIndex(fav => fav.v === item.v && fav.title === item.title);
+        const defaultIndex = defaultFavorites.findIndex(fav => fav.v === item.v && fav.title === item.title);
+        
+        if (userIndex !== -1) {
+            // Update existing user favorite with new settings
+            userFavorites[userIndex] = item;
+        } else if (defaultIndex !== -1) {
+            // Item exists in defaults, add updated version to user favorites
+            userFavorites.unshift(item);
+        } else {
+            // Completely new item, add to beginning
+            userFavorites.unshift(item);
         }
+        
+        saveFavorites(userFavorites);
     }
 
     function removeFromFavorites(index) {
