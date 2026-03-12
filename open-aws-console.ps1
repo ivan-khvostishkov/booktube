@@ -32,4 +32,3 @@ Write-Host $federatedUrl
 
 # Open the URL in the default browser
 Start-Process $federatedUrl
-
