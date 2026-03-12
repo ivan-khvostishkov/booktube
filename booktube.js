@@ -81,31 +81,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // Favorites management
     function getFavorites() {
         const stored = localStorage.getItem('booktube_favorites');
-        return stored ? JSON.parse(stored) : defaultFavorites;
+        const userFavorites = stored ? JSON.parse(stored) : [];
+        // Return user favorites first, then default favorites
+        return [...userFavorites, ...defaultFavorites];
     }
 
-    function saveFavorites(favorites) {
-        localStorage.setItem('booktube_favorites', JSON.stringify(favorites));
+    function saveFavorites(userFavorites) {
+        localStorage.setItem('booktube_favorites', JSON.stringify(userFavorites));
     }
 
     function addToFavorites(item) {
-        const favorites = getFavorites();
-        const exists = favorites.some(fav => fav.v === item.v && fav.title === item.title);
+        const userFavorites = JSON.parse(localStorage.getItem('booktube_favorites') || '[]');
+        const allFavorites = [...userFavorites, ...defaultFavorites];
+        const exists = allFavorites.some(fav => fav.v === item.v && fav.title === item.title);
         if (!exists) {
-            favorites.push(item);
-            saveFavorites(favorites);
+            userFavorites.unshift(item); // Add to beginning of user favorites
+            saveFavorites(userFavorites);
         }
     }
 
     function removeFromFavorites(index) {
-        const favorites = getFavorites();
-        favorites.splice(index, 1);
-        saveFavorites(favorites);
+        const userFavorites = JSON.parse(localStorage.getItem('booktube_favorites') || '[]');
+        const allFavorites = [...userFavorites, ...defaultFavorites];
+        
+        if (index < userFavorites.length) {
+            // Removing from user favorites
+            userFavorites.splice(index, 1);
+            saveFavorites(userFavorites);
+        } else {
+            // Trying to remove from default favorites - not allowed
+            alert('Cannot remove default favorites. Only custom favorites can be removed.');
+            return;
+        }
         renderFavorites();
     }
 
     function resetFavorites() {
-        saveFavorites(defaultFavorites);
+        localStorage.removeItem('booktube_favorites'); // Clear user favorites
         renderFavorites();
     }
 
